@@ -13,6 +13,8 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final Color primaryColor = Color(0xFF63C57A);
+  final Color bgColor = Color(0xFF121212);
+  final Color textMutedColor = Colors.grey;
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -34,6 +36,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       body: SafeArea(
           child: SingleChildScrollView(
         child: Padding(
@@ -49,7 +52,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 140,
                 width: double.infinity,
                 child: Image.asset(
-                  "assets/images/logo-light.png",
+                  "assets/images/logo-dark.png",
                   fit: BoxFit.fill,
                 ),
               ),
@@ -60,7 +63,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   style: TextStyle(
                     fontFamily:
                         'Cedarville', // Use the font family defined in pubspec.yaml
-                    color: Colors.black54,
+                    color: textMutedColor,
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),
@@ -72,19 +75,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               SizedBox(
                 height: 45.0,
                 child: TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _emailController,
                   cursorColor: primaryColor,
                   decoration: InputDecoration(
                     hintText: "Email",
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-                    hintStyle: const TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w300),
+                    hintStyle: TextStyle(
+                        color: textMutedColor, fontWeight: FontWeight.w300),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: BorderSide(color: textMutedColor),
                     ),
                   ),
                 ),
@@ -95,19 +99,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               SizedBox(
                 height: 45.0,
                 child: TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _usernameController,
                   cursorColor: primaryColor,
                   decoration: InputDecoration(
                     hintText: "Username",
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-                    hintStyle: const TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w300),
+                    hintStyle: TextStyle(
+                        color: textMutedColor, fontWeight: FontWeight.w300),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: BorderSide(color: textMutedColor),
                     ),
                   ),
                 ),
@@ -118,13 +123,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               SizedBox(
                 height: 45.0,
                 child: TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _passwordController,
                   cursorColor: primaryColor,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Password",
-                    hintStyle: const TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w300),
+                    hintStyle: TextStyle(
+                        color: textMutedColor, fontWeight: FontWeight.w300),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
                     border: OutlineInputBorder(
@@ -132,7 +138,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: BorderSide(color: textMutedColor),
                     ),
                   ),
                 ),
@@ -162,16 +168,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 25.0,
               ),
               Row(
-                children: const [
-                  Expanded(child: Divider()),
+                children: [
+                  const Expanded(child: Divider()),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: Text(
                       "OR",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: textMutedColor),
                     ),
                   ),
-                  Expanded(child: Divider()),
+                  const Expanded(child: Divider()),
                 ],
               ),
               SizedBox(
@@ -182,7 +188,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 children: [
                   Text(
                     "Already have an account?",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: textMutedColor),
                   ),
                   TextButton(
                     onPressed: () {

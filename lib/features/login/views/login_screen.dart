@@ -13,6 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final Color primaryColor = Color(0xFF63C57A);
+  final Color bgColor = Color(0xFF121212);
+  final Color textMutedColor = Colors.grey;
 
   final TextEditingController _usernameOrEmailController =
       TextEditingController();
@@ -33,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       body: SafeArea(
           child: SingleChildScrollView(
         child: Padding(
@@ -48,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 140,
                 width: double.infinity,
                 child: Image.asset(
-                  "assets/images/logo-light.png",
+                  "assets/images/logo-dark.png",
                   fit: BoxFit.fill,
                 ),
               ),
@@ -59,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontFamily:
                         'Cedarville', // Use the font family defined in pubspec.yaml
-                    color: Colors.black54,
+                    color: textMutedColor,
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),
@@ -73,17 +76,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextFormField(
                   cursorColor: primaryColor,
                   controller: _usernameOrEmailController,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: "username or email",
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-                    hintStyle: const TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w300),
+                    hintStyle: TextStyle(
+                        color: textMutedColor, fontWeight: FontWeight.w300),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: BorderSide(color: textMutedColor),
                     ),
                   ),
                 ),
@@ -94,13 +98,14 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 45.0,
                 child: TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _passwordController,
                   cursorColor: primaryColor,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: "password",
-                    hintStyle: const TextStyle(
-                        color: Colors.grey, fontWeight: FontWeight.w300),
+                    hintStyle: TextStyle(
+                        color: textMutedColor, fontWeight: FontWeight.w300),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
                     border: OutlineInputBorder(
@@ -108,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: BorderSide(color: textMutedColor),
                     ),
                   ),
                 ),
@@ -138,16 +143,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 25.0,
               ),
               Row(
-                children: const [
-                  Expanded(child: Divider()),
+                children: [
+                  const Expanded(child: Divider()),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: Text(
                       "OR",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: textMutedColor),
                     ),
                   ),
-                  Expanded(child: Divider()),
+                  const Expanded(child: Divider()),
                 ],
               ),
               SizedBox(
@@ -165,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       "forgot password?",
                       style: TextStyle(
                           fontWeight: FontWeight.w300,
-                          color: Colors.black,
+                          color: primaryColor,
                           fontSize: 17),
                     )),
               ),
@@ -177,7 +182,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Text(
                     "Don't have an account?",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: textMutedColor),
                   ),
                   TextButton(
                     onPressed: () {
