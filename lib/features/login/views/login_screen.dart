@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
-import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -56,10 +55,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Text(
                   "Connect with the world around you.",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.cedarvilleCursive(
-                      textStyle: TextStyle(color: Colors.black54),
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily:
+                        'Cedarville', // Use the font family defined in pubspec.yaml
+                    color: Colors.black54,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               SizedBox(
