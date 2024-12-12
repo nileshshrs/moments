@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
+import 'package:moments/features/login/views/login_screen.dart';
 // ignore: depend_on_referenced_packages
 
 class RegistrationScreen extends StatefulWidget {
@@ -184,7 +185,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Navigate to LoginScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
                     style: ButtonStyle(
                       overlayColor: WidgetStateProperty.all<Color>(
                           Colors.transparent), // Disable highlight color
