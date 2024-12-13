@@ -24,25 +24,33 @@ class _LoginScreenState extends State<LoginScreen> {
   void login(String usernameOrEmail, String password) {
     print('username: $usernameOrEmail, password: $password');
 
-    if (usernameOrEmail.isEmpty && password.isEmpty ||
-        usernameOrEmail != "admin" && password != "admin123") {
+    if (usernameOrEmail.isEmpty && password.isEmpty) {
       // Show error message using Flushbar
       FlushbarUtil.showMessage(
         context: context,
-        message: "invalid credentials. please try again.!",
+        message: "Invalid credentials. Please try again.",
         backgroundColor: Color(0xFFF0635D),
         messageColor: Colors.white,
       );
       return; // Exit early if fields are empty
+    } else if (usernameOrEmail != "admin" || password != "admin123") {
+      // Use OR condition to check if either username/email or password is incorrect
+      FlushbarUtil.showMessage(
+        context: context,
+        message: "Invalid credentials. Please try again.",
+        backgroundColor: Color(0xFFF0635D),
+        messageColor: Colors.white,
+      );
+      return;
+    } else {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomeScreen()));
     }
 
     // Add login logic here (e.g., API call)
-
-    // Clear the input fields after successful login
     _usernameOrEmailController.clear();
     _passwordController.clear();
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    // Clear the input fields after successful login
   }
 
   @override
