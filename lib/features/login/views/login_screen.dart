@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
+import 'package:moments/features/home/view/home_screen.dart';
 import 'package:moments/features/registration/view/registration_screen.dart';
 import 'package:moments/utils/flushbar_utils.dart'; // Import your FlushbarUtil here
 
@@ -40,6 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
     // Clear the input fields after successful login
     _usernameOrEmailController.clear();
     _passwordController.clear();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 
   @override
