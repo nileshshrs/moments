@@ -21,7 +21,6 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       style: const TextStyle(color: Colors.black),
       controller: controller,
-      cursorColor: const Color(0xFF63C57A),
       obscureText: obscureText,
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -33,28 +32,11 @@ class CustomTextFormField extends StatelessWidget {
         return null;
       },
       decoration: InputDecoration(
+        isDense: true, // Makes the input field more compact
         hintText: hintText,
-        hintStyle: const TextStyle(
-            color: Color.fromARGB(255, 73, 73, 73),
-            fontWeight: FontWeight.w300),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        errorStyle: const TextStyle(color: Color(0xFFF06360)),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF06360)),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF06360)),
-        ),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 12.0), // Adjust vertical padding to fit within 45px
       ),
     );
   }

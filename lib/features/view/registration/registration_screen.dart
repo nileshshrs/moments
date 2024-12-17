@@ -11,7 +11,6 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final Color primaryColor = const Color(0xFF63C57A);
-  final Color bgColor = const Color(0xFF121212);
   final Color textMutedColor = Colors.grey;
 
   final TextEditingController _usernameController = TextEditingController();
@@ -54,12 +53,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   fit: BoxFit.fill,
                 ),
                 const SizedBox(height: 20),
-                Text(
+                const Text(
                   "Connect with the world around you.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Cedarville',
-                    color: textMutedColor,
+                    color: Color.fromARGB(255, 73, 73, 73),
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                   ),

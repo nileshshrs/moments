@@ -34,12 +34,9 @@ ThemeData getApplicationTheme() {
       filled: true,
       fillColor: Colors.grey[100], // Background color for input field
       hintStyle: const TextStyle(
-        color: Colors.grey,
-        fontWeight: FontWeight.w300,
-        fontSize: 16,
-      ),
+          color: Color.fromARGB(255, 73, 73, 73), fontWeight: FontWeight.w300),
       contentPadding: const EdgeInsets.symmetric(
-        vertical: 16.0,
+        vertical: 0,
         horizontal: 12.0,
       ),
       border: OutlineInputBorder(
@@ -60,7 +57,6 @@ ThemeData getApplicationTheme() {
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(
           color: Color(0xFF63C57A), // Focused border color
-          width: 2.0,
         ),
       ),
       errorBorder: OutlineInputBorder(

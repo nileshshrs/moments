@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 140,
                   width: double.infinity,
                   child: Image.asset(
-                    "assets/images/logo-dark.png",
+                    "assets/images/logo-light.png",
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -92,8 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(color: Colors.black),
                     decoration: const InputDecoration(
                       hintText: "username or email",
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
                     ),
                   ),
                 ),
@@ -106,8 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     decoration: const InputDecoration(
                       hintText: "password",
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
+                      hintStyle: TextStyle(
+                          color: Color.fromARGB(255, 73, 73, 73),
+                          fontWeight: FontWeight.w300),
                     ),
                   ),
                 ),
