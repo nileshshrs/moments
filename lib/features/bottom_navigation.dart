@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -9,45 +8,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Color textColor = Colors.white;
-  final Color bgColor = Color(0xFF121212);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: bgColor,
-        elevation: 1,
+        automaticallyImplyLeading: false,
+        elevation: .5,
         title: SizedBox(
           height: 80,
           width: 140,
           child: Image.asset(
-            "assets/images/logo-dark.png",
+            "assets/images/logo-light.png",
             fit: BoxFit.cover,
           ),
         ),
-        bottom: PreferredSize(
-          preferredSize:
-              Size(double.infinity, 2), // Height of the bottom border
-          child: Container(
-            color: Colors.white, // The color of the bottom border
-            height: .1, // Height of the border
-          ),
-        ),
       ),
-      body: SafeArea(
+      body: const SafeArea(
           child: Center(
-        child: Text(
-          "home screen",
-          style: TextStyle(color: Colors.white),
-        ),
+        child: Text("home screen", style: TextStyle(color: Colors.black)),
       )),
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 2,
+        elevation: 1,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: bgColor,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.camera_outlined),

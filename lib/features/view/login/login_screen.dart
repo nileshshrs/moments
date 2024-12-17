@@ -1,9 +1,7 @@
-// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace
-
 import 'package:flutter/material.dart';
-import 'package:moments/features/home/view/home_screen.dart';
-import 'package:moments/features/registration/view/registration_screen.dart';
-import 'package:moments/utils/flushbar_utils.dart'; // Import your FlushbarUtil here
+import 'package:moments/core/common/flushbar_utils.dart'; // Import your FlushbarUtil here
+import 'package:moments/features/bottom_navigation.dart';
+import 'package:moments/features/view/registration/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,9 +11,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final Color primaryColor = Color(0xFF63C57A);
-  final Color bgColor = Color(0xFF121212);
-  final Color textMutedColor = Colors.grey;
+  final Color primaryColor = const Color(0xFF63C57A);
 
   final TextEditingController _usernameOrEmailController =
       TextEditingController();
@@ -24,39 +20,41 @@ class _LoginScreenState extends State<LoginScreen> {
   void login(String usernameOrEmail, String password) {
     print('username: $usernameOrEmail, password: $password');
 
-    if (usernameOrEmail.isEmpty && password.isEmpty) {
-      // Show error message using Flushbar
+    // Check for empty fields
+    if (usernameOrEmail.isEmpty || password.isEmpty) {
       FlushbarUtil.showMessage(
         context: context,
-        message: "Invalid credentials. Please try again.",
-        backgroundColor: Color(0xFFF0635D),
+        message: "Please enter both username/email and password.",
+        backgroundColor: const Color(0xFFF0635D),
         messageColor: Colors.white,
       );
-      return; // Exit early if fields are empty
-    } else if (usernameOrEmail != "admin" || password != "admin123") {
-      // Use OR condition to check if either username/email or password is incorrect
+      return; // Early exit if fields are empty
+    }
+
+    // Check for valid credentials
+    if (usernameOrEmail == "admin" && password == "admin123") {
+      print('Login success');
+      // Clear fields and navigate to home screen
+      _usernameOrEmailController.clear();
+      _passwordController.clear();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
       FlushbarUtil.showMessage(
         context: context,
         message: "Invalid credentials. Please try again.",
-        backgroundColor: Color(0xFFF0635D),
+        backgroundColor: const Color(0xFFF0635D),
         messageColor: Colors.white,
       );
       return;
-    } else {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
     }
-
-    // Add login logic here (e.g., API call)
-    _usernameOrEmailController.clear();
-    _passwordController.clear();
-    // Clear the input fields after successful login
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -65,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 90),
+                const SizedBox(height: 90),
                 SizedBox(
                   height: 140,
                   width: double.infinity,
@@ -74,65 +72,46 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: BoxFit.fill,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   child: Text(
                     "Connect with the world around you.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Cedarville',
-                      color: textMutedColor,
+                      color: Color.fromARGB(255, 73, 73, 73),
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                SizedBox(height: 25.0),
+                const SizedBox(height: 25.0),
                 SizedBox(
                   height: 45.0,
                   child: TextFormField(
-                    cursorColor: primaryColor,
                     controller: _usernameOrEmailController,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
+                    style: const TextStyle(color: Colors.black),
+                    decoration: const InputDecoration(
                       hintText: "username or email",
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-                      hintStyle: TextStyle(
-                          color: textMutedColor, fontWeight: FontWeight.w300),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: textMutedColor),
-                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: 25.0),
+                const SizedBox(height: 25.0),
                 SizedBox(
                   height: 45.0,
                   child: TextFormField(
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black),
                     controller: _passwordController,
-                    cursorColor: primaryColor,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "password",
-                      hintStyle: TextStyle(
-                          color: textMutedColor, fontWeight: FontWeight.w300),
                       contentPadding:
                           EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: textMutedColor),
-                      ),
                     ),
                   ),
                 ),
-                SizedBox(height: 25.0),
+                const SizedBox(height: 25.0),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -142,57 +121,53 @@ class _LoginScreenState extends State<LoginScreen> {
                         _passwordController.text,
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: Text("Login"),
+                    child: const Text("Sign in"),
                   ),
                 ),
-                SizedBox(height: 25.0),
-                Row(
+                const SizedBox(height: 25.0),
+                const Row(
                   children: [
-                    const Expanded(child: Divider()),
+                    Expanded(child: Divider()),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                      padding: EdgeInsets.symmetric(horizontal: 30.0),
                       child: Text(
                         "OR",
-                        style: TextStyle(color: textMutedColor),
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 73, 73, 73),
+                        ),
                       ),
                     ),
-                    const Expanded(child: Divider()),
+                    Expanded(child: Divider()),
                   ],
                 ),
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
                 SizedBox(
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () {},
                     style: ButtonStyle(
-                      overlayColor: MaterialStateProperty.all<Color>(
+                      overlayColor: WidgetStateProperty.all<Color>(
                           Colors.transparent), // Disable highlight color
                     ),
-                    child: Text(
+                    child: const Text(
                       "forgot password?",
                       style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          color: primaryColor,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF63C57A),
                           fontSize: 17),
                     ),
                   ),
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       "Don't have an account?",
                       style: TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.w300,
-                          color: textMutedColor),
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black),
                     ),
                     TextButton(
                       onPressed: () {
@@ -200,19 +175,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => RegistrationScreen()),
+                              builder: (context) => const RegistrationScreen()),
                         );
                       },
                       style: ButtonStyle(
-                        overlayColor: MaterialStateProperty.all<Color>(
+                        overlayColor: WidgetStateProperty.all<Color>(
                             Colors.transparent), // Disable highlight color
                       ),
-                      child: Text(
+                      child: const Text(
                         "Sign up",
                         style: TextStyle(
-                            color: primaryColor,
+                            color: Color(0xFF63C57A),
                             fontSize: 15,
-                            fontWeight: FontWeight.w500),
+                            fontWeight: FontWeight.w600),
                       ),
                     )
                   ],

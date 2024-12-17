@@ -59,10 +59,25 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+
+  # Fonts Section
   fonts:
-    - family: cedarville
+    - family: Cedarville
       fonts:
         - asset: assets/fonts/CedarvilleCursive-Regular.ttf
+
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/OpenSans-Regular.ttf
+        - asset: assets/fonts/OpenSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/OpenSans-Italic.ttf
+          style: italic
+        - asset: assets/fonts/OpenSans-Bold.ttf
+          weight: 700
+
+
 
   # To add assets to your application, add an assets section, like this:
   assets:

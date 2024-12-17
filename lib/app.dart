@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moments/features/home/view/home_screen.dart';
-import 'package:moments/features/login/views/login_screen.dart';
-import 'package:moments/features/registration/view/registration_screen.dart';
+import 'package:moments/core/app_theme/app_theme.dart';
 import 'package:moments/features/splashscreen/splash_screen.dart';
 // import 'package:moments/features/splashscreen/splash_screen.dart';
 
@@ -15,8 +13,9 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SplashScreen(),
+    return MaterialApp(
+      theme: getApplicationTheme(),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
