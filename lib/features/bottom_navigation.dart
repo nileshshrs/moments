@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:moments/features/view/bottom_navigation/account_screen.dart';
+import 'package:moments/features/view/bottom_navigation/chat_screen.dart';
+import 'package:moments/features/view/bottom_navigation/home_screen.dart';
+import 'package:moments/features/view/bottom_navigation/search_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class BottomNavigationView extends StatefulWidget {
+  const BottomNavigationView({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<BottomNavigationView> createState() => _BottomNavigationViewState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _BottomNavigationViewState extends State<BottomNavigationView> {
+  int _currentIndex = 0;
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const SearchScreen(),
+    const ChatScreen(),
+    const ProfileScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,11 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      body: const SafeArea(
-          child: Center(
-        child: Text("home screen", style: TextStyle(color: Colors.black)),
-      )),
+      body: SafeArea(
+        child: _screens[_currentIndex], // Display the selected screen
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (value) => setState(() {
+          _currentIndex = value;
+        }),
         elevation: 1,
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
@@ -38,10 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined),
-            label: 'Create',
           ),
           BottomNavigationBarItem(
             icon: Icon(IconData(0xf3fb,

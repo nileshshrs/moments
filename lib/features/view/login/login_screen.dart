@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.clear();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const BottomNavigationView()),
       );
     } else {
       FlushbarUtil.showMessage(
