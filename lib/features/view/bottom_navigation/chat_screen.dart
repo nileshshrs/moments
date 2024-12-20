@@ -64,58 +64,56 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // Search bar
-            SizedBox(
-              height: 40,
-              child: TextField(
-                controller: _searchController,
-                onChanged: _filterMessages,
-                decoration: InputDecoration(
-                  hintText: 'Search by Username',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              _searchController.clear();
-                              displayedMessages =
-                                  messages; // Reset to all messages
-                            });
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          // Search bar
+          SizedBox(
+            height: 40,
+            child: TextField(
+              controller: _searchController,
+              onChanged: _filterMessages,
+              decoration: InputDecoration(
+                hintText: 'Search by Username',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            displayedMessages =
+                                messages; // Reset to all messages
+                          });
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),
-            const SizedBox(height: 20), // Space between search bar and list
+          ),
+          const SizedBox(height: 20), // Space between search bar and list
 
-            // Displaying the messages
-            Expanded(
-              child: ListView.builder(
-                itemCount: displayedMessages.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                          NetworkImage(displayedMessages[index]['image']!),
-                    ),
-                    title: Text(displayedMessages[index]['username']!),
-                    subtitle: Text(displayedMessages[index]['message']!),
-                  );
-                },
-              ),
+          // Displaying the messages
+          Expanded(
+            child: ListView.builder(
+              itemCount: displayedMessages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(displayedMessages[index]['image']!),
+                  ),
+                  title: Text(displayedMessages[index]['username']!),
+                  subtitle: Text(displayedMessages[index]['message']!),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

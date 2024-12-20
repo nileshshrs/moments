@@ -95,77 +95,74 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            // Search bar with conditional Clear button
-            SizedBox(
-              height: 35,
-              child: TextField(
-                controller: _searchController,
-                onChanged:
-                    _filterUsers, // Call _filterUsers every time the input changes
-                decoration: InputDecoration(
-                  hintText: 'Search by Username or Email',
-                  prefixIcon: const Icon(
-                    Icons.search,
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          // Search bar with conditional Clear button
+          SizedBox(
+            height: 35,
+            child: TextField(
+              controller: _searchController,
+              onChanged:
+                  _filterUsers, // Call _filterUsers every time the input changes
+              decoration: InputDecoration(
+                hintText: 'Search by Username or Email',
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Colors.black,
+                ),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _clearSearch, // Clear search and reset users
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                hintStyle: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20), // Add some spacing
+
+          // Show "No recent searches" message if the search field is empty
+          if (displayedUsers.isEmpty && isSearchFieldEmpty())
+            const Expanded(
+              child: Center(
+                child: Text(
+                  'No recent searches',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed:
-                              _clearSearch, // Clear search and reset users
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  hintStyle: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500),
                 ),
               ),
             ),
-            const SizedBox(height: 20), // Add some spacing
 
-            // Show "No recent searches" message if the search field is empty
-            if (displayedUsers.isEmpty && isSearchFieldEmpty())
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'No recent searches',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
+          // Only display the list if there are filtered users
+          if (displayedUsers.isNotEmpty)
+            Expanded(
+              child: ListView.builder(
+                itemCount: displayedUsers.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(displayedUsers[index]['image']!),
                     ),
-                  ),
-                ),
+                    title: Text(displayedUsers[index]['username']!),
+                    subtitle: Text(displayedUsers[index]['email']!),
+                  );
+                },
               ),
-
-            // Only display the list if there are filtered users
-            if (displayedUsers.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: displayedUsers.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(displayedUsers[index]['image']!),
-                      ),
-                      title: Text(displayedUsers[index]['username']!),
-                      subtitle: Text(displayedUsers[index]['email']!),
-                    );
-                  },
-                ),
-              ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
