@@ -93,6 +93,11 @@ class _SearchScreenState extends State<SearchScreen> {
     _filterUsers('');
   }
 
+  // Helper function to check if the search field is empty
+  bool isSearchFieldEmpty() {
+    return _searchController.text.isEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -151,13 +156,22 @@ class _SearchScreenState extends State<SearchScreen> {
               child: ListView.builder(
                 itemCount: displayedUsers.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                          NetworkImage(displayedUsers[index]['image']!),
+                  return GestureDetector(
+                    onTap: () {
+                      // You can perform an action when the user taps on a list item.
+                      // For example, navigating to a new screen:
+                      print('Tapped on ${displayedUsers[index]['username']}');
+                      // Optionally, you could navigate to a profile page:
+                      // Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(user: displayedUsers[index])));
+                    },
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage:
+                            NetworkImage(displayedUsers[index]['image']!),
+                      ),
+                      title: Text(displayedUsers[index]['username']!),
+                      subtitle: Text(displayedUsers[index]['email']!),
                     ),
-                    title: Text(displayedUsers[index]['username']!),
-                    subtitle: Text(displayedUsers[index]['email']!),
                   );
                 },
               ),
@@ -165,10 +179,5 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
     );
-  }
-
-  // Helper function to check if the search field is empty
-  bool isSearchFieldEmpty() {
-    return _searchController.text.isEmpty;
   }
 }

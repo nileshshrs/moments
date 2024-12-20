@@ -62,6 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -96,19 +97,28 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           const SizedBox(height: 20), // Space between search bar and list
-
-          // Displaying the messages
+          const SizedBox(
+            width: double.infinity,
+            child: Text("Messages"),
+          ),
+          // Displaying the messages with GestureDetector
           Expanded(
             child: ListView.builder(
               itemCount: displayedMessages.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage:
-                        NetworkImage(displayedMessages[index]['image']!),
+                return GestureDetector(
+                  onTap: () {
+                    // Call _onMessageTap when a message is tapped
+                  
+                  },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(displayedMessages[index]['image']!),
+                    ),
+                    title: Text(displayedMessages[index]['username']!),
+                    subtitle: Text(displayedMessages[index]['message']!),
                   ),
-                  title: Text(displayedMessages[index]['username']!),
-                  subtitle: Text(displayedMessages[index]['message']!),
                 );
               },
             ),
