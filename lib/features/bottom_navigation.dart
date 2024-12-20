@@ -23,20 +23,56 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: .5,
-        title: SizedBox(
-          height: 80,
-          width: 140,
-          child: Image.asset(
-            "assets/images/logo-light.png",
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
+      appBar: _currentIndex == 1
+          ? null
+          : AppBar(
+              actions: _currentIndex == 0
+                  ? [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.add_circle,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          print("Add button pressed");
+                        },
+                      ),
+                    ]
+                  : _currentIndex == 2
+                      ? [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.edit_square,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              print("Create message button pressed");
+                            },
+                          ),
+                        ]
+                      : null,
+              automaticallyImplyLeading: false,
+              elevation: .2,
+              title: _currentIndex == 0
+                  ? SizedBox(
+                      height: 80,
+                      width: 140,
+                      child: Image.asset(
+                        "assets/images/logo-light.png",
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Text(
+                        "Example User",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+            ),
       body: SafeArea(
-        child: _screens[_currentIndex], // Display the selected screen
+        child: _screens[_currentIndex],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
