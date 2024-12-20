@@ -62,7 +62,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -99,7 +98,10 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(height: 20), // Space between search bar and list
           const SizedBox(
             width: double.infinity,
-            child: Text("Messages"),
+            child: Text(
+              "Messages",
+              style: TextStyle(color: Color(0xFF63C57A)),
+            ),
           ),
           // Displaying the messages with GestureDetector
           Expanded(
@@ -109,7 +111,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 return GestureDetector(
                   onTap: () {
                     // Call _onMessageTap when a message is tapped
-                  
                   },
                   child: ListTile(
                     leading: CircleAvatar(
