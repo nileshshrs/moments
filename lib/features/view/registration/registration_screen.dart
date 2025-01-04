@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/core/common/custom_textformfield.dart';
-import 'package:moments/features/auth/presentation/view/login_screen.dart';
-import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
+import 'package:moments/features/view/login/login_screen.dart';
 
-class RegistrationScreen extends StatelessWidget {
-  RegistrationScreen({super.key});
+class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
 
+  @override
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
+}
+
+class _RegistrationScreenState extends State<RegistrationScreen> {
   final Color primaryColor = const Color(0xFF63C57A);
-
   final Color textMutedColor = Colors.grey;
 
   final TextEditingController _usernameController = TextEditingController();
-
   final TextEditingController _emailController = TextEditingController();
-
   final TextEditingController _passwordController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>();
-  // Key for form validation
+  final _formKey = GlobalKey<FormState>(); // Key for form validation
+
+  // Regex patterns
   final _emailRegex =
       RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-
   final _usernameRegex = RegExp(r'^[a-zA-Z0-9_]+$');
-
   final _passwordRegex =
       RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,24}$');
 
@@ -123,13 +122,11 @@ class RegistrationScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Dispatch event to navigate to RegistrationScreen
-                        context.read<LoginBloc>().add(
-                              NavigateToRegisterScreenEvent(
-                                context: context,
-                                destination: const LoginScreen(),
-                              ),
-                            );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                        );
                       },
                       style: ButtonStyle(
                         overlayColor:
