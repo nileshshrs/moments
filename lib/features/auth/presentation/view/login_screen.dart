@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:moments/core/common/flushbar_utils.dart'; // Import your FlushbarUtil here
-import 'package:moments/features/bottom_navigation.dart';
-import 'package:moments/features/view/registration/registration_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/features/auth/presentation/view/registration_screen.dart';
+import 'package:moments/core/common/flushbar_utils.dart';
+import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
+import 'package:moments/features/home/presentation/view/home_view.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -170,11 +172,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigate to RegistrationScreen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const RegistrationScreen()),
+                        // Dispatch event to navigate to RegistrationScreen
+                        context.read<LoginBloc>().add(
+                          NavigateToRegisterScreenEvent(
+                            context: context,
+                            destination:  RegistrationScreen(),
+                          ),
                         );
                       },
                       style: ButtonStyle(

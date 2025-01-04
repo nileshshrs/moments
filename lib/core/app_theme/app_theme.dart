@@ -32,7 +32,7 @@ ThemeData getApplicationTheme() {
     // TextFormField Global Theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.grey[100], // Background color for input field
+      fillColor: Colors.grey[100],
       hintStyle: const TextStyle(
           color: Color.fromARGB(255, 73, 73, 73), fontWeight: FontWeight.w300),
       contentPadding: const EdgeInsets.symmetric(
@@ -56,33 +56,50 @@ ThemeData getApplicationTheme() {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(
-          color: Color(0xFF63C57A), // Focused border color
+          color: Color(0xFF63C57A),
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(
-          color: Color(0xFFF06360), // Error border color
+          color: Color(0xFFF06360),
           width: 1.5,
         ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(
-          color: Color(0xFFF06360), // Focused error border color
+          color: Color(0xFFF06360),
           width: 2.0,
         ),
       ),
       errorStyle: const TextStyle(
-        color: Color(0xFFF06360), // Error text color
+        color: Color(0xFFF06360),
         fontWeight: FontWeight.w500,
       ),
     ),
     textSelectionTheme: TextSelectionThemeData(
-      cursorColor: const Color(0xFF63C57A), // Cursor color
-      selectionColor:
-          const Color(0xFF63C57A).withOpacity(0.5), // Text selection color
-      selectionHandleColor: const Color(0xFF63C57A), // Handle color
+      cursorColor: const Color(0xFF63C57A),
+      selectionColor: const Color(0xFF63C57A).withOpacity(0.5),
+      selectionHandleColor: const Color(0xFF63C57A),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
+      selectedItemColor: Color(0xFF63C57A),
+      unselectedItemColor: Colors.black,
+      selectedIconTheme: IconThemeData(
+        size: 28,
+      ),
+      unselectedIconTheme: IconThemeData(
+        size: 24,
+      ),
+      selectedLabelStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+      unselectedLabelStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+      elevation: 4,
     ),
   );
 }
