@@ -62,6 +62,60 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, String>> messages = [
+    {
+      'username': 'Alice',
+      'message': 'Hey! How are you?',
+      'image': 'https://randomuser.me/api/portraits/women/1.jpg',
+    },
+    {
+      'username': 'Bob',
+      'message': 'Are we still meeting later?',
+      'image': 'https://randomuser.me/api/portraits/men/2.jpg',
+    },
+    {
+      'username': 'Charlie',
+      'message': 'Got your email, thanks!',
+      'image': 'https://randomuser.me/api/portraits/men/3.jpg',
+    },
+    {
+      'username': 'David',
+      'message': 'Let\'s catch up soon!',
+      'image': 'https://randomuser.me/api/portraits/men/4.jpg',
+    },
+    {
+      'username': 'Eve',
+      'message': 'Don\'t forget to reply!',
+      'image': 'https://randomuser.me/api/portraits/women/5.jpg',
+    },
+  ];
+
+  List<Map<String, String>> displayedMessages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    displayedMessages = messages; // Initially display all messages
+  }
+
+  void _filterMessages(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        displayedMessages = messages; // Show all messages when query is empty
+      });
+    } else {
+      setState(() {
+        // Filter messages based only on the username
+        displayedMessages = messages
+            .where((message) => message['username']!
+                .toLowerCase()
+                .contains(query.toLowerCase())) // Only filter by username
+            .toList();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
