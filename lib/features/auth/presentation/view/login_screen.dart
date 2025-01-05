@@ -1,59 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:moments/core/common/flushbar_utils.dart'; // Import your FlushbarUtil here
-import 'package:moments/features/bottom_navigation.dart';
-import 'package:moments/features/view/registration/registration_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/features/auth/presentation/view/registration_screen.dart';
+import 'package:moments/core/common/flushbar_utils.dart';
+import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
+import 'package:moments/features/home/presentation/view/home_view.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   final Color primaryColor = const Color(0xFF63C57A);
-
-  final TextEditingController _usernameOrEmailController =
-      TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  void login(String usernameOrEmail, String password) {
-    print('username: $usernameOrEmail, password: $password');
-
-    // Check for empty fields
-    if (usernameOrEmail.isEmpty || password.isEmpty) {
-      FlushbarUtil.showMessage(
-        context: context,
-        message: "Please enter both username/email and password.",
-        backgroundColor: const Color(0xFFF0635D),
-        messageColor: Colors.white,
-      );
-      return; // Early exit if fields are empty
-    }
-
-    // Check for valid credentials
-    if (usernameOrEmail == "admin" && password == "admin123") {
-      print('Login success');
-      // Clear fields and navigate to home screen
-      _usernameOrEmailController.clear();
-      _passwordController.clear();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const BottomNavigationView()),
-      );
-    } else {
-      FlushbarUtil.showMessage(
-        context: context,
-        message: "Invalid credentials. Please try again.",
-        backgroundColor: const Color(0xFFF0635D),
-        messageColor: Colors.white,
-      );
-      return;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController usernameOrEmailController =
+        TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -88,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 45.0,
                   child: TextFormField(
-                    controller: _usernameOrEmailController,
+                    controller: usernameOrEmailController,
                     style: const TextStyle(color: Colors.black),
                     decoration: const InputDecoration(
                       hintText: "username or email",
@@ -100,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 45.0,
                   child: TextFormField(
                     style: const TextStyle(color: Colors.black),
-                    controller: _passwordController,
+                    controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       hintText: "password",
@@ -115,10 +77,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      login(
-                        _usernameOrEmailController.text,
-                        _passwordController.text,
-                      );
+                      final usernameOrEmail = usernameOrEmailController.text;
+                      final password = passwordController.text;
+
+                      // Dispatch the login event
+                      if (usernameOrEmail.isNotEmpty && password.isNotEmpty) {
+                        context.read<LoginBloc>().add(
+                              LoginUserEvent(
+                                username: usernameOrEmail,
+                                password: password,
+                              ),
+                            );
+                      } else {
+                        FlushbarUtil.showMessage(
+                          context: context,
+                          message:
+                              "Please enter both username/email and password.",
+                          backgroundColor: const Color(0xFFF0635D),
+                          messageColor: Colors.white,
+                        );
+                      }
                     },
                     child: const Text("Sign in"),
                   ),
@@ -170,15 +148,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigate to RegistrationScreen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const RegistrationScreen()),
-                        );
+                        // Dispatch event to navigate to RegistrationScreen
+                        context.read<LoginBloc>().add(
+                              NavigateToRegisterScreenEvent(
+                                context: context,
+                                destination: RegistrationScreen(),
+                              ),
+                            );
                       },
                       style: ButtonStyle(
-                        overlayColor: WidgetStateProperty.all<Color>(
+                        overlayColor: MaterialStateProperty.all<Color>(
                             Colors.transparent), // Disable highlight color
                       ),
                       child: const Text(
@@ -190,7 +169,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     )
                   ],
-                )
+                ),
+                // Handle LoginState updates (loading, success, error)
+                BlocListener<LoginBloc, LoginState>(
+                  listener: (context, state) {
+                    if (state.isLoading) {
+                      // Show loading indicator if needed
+                    } else if (state.isSuccess) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BottomNavigationView(),
+                        ),
+                      );
+                    } else if (state.errorMessage != null) {
+                      FlushbarUtil.showMessage(
+                        context: context,
+                        message: state.errorMessage!,
+                        backgroundColor: const Color(0xFFF0635D),
+                        messageColor: Colors.white,
+                      );
+                    }
+                  },
+                  child: Container(),
+                ),
               ],
             ),
           ),

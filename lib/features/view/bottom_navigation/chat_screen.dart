@@ -100,7 +100,8 @@ class _ChatScreenState extends State<ChatScreen> {
             width: double.infinity,
             child: Text(
               "Messages",
-              style: TextStyle(color: Color(0xFF63C57A)),
+              style: TextStyle(
+                  color: Color(0xFF63C57A), fontWeight: FontWeight.bold),
             ),
           ),
           // Displaying the messages with GestureDetector
