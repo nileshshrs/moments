@@ -9,7 +9,7 @@ class HiveService {
     var directory = await getApplicationDocumentsDirectory();
 
     // Define the path for the Hive database
-    var path = '${directory.path}/softwarica_student_management.db';
+    var path = '${directory.path}/moments.db';
 
     // Initialize Hive with the path
     Hive.init(path);
