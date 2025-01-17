@@ -41,8 +41,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           print("registered");
           FlushbarUtil.showMessage(
             context: event.context,
-            message:
-                "Invalid credentials, please try again!", // Use failure.message here
+            message: "Registration successful.!", // Use failure.message here
             backgroundColor: Color(0xFF63C57A),
             messageColor: Colors.white,
           );
