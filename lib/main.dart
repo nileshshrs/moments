@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moments/app/app.dart';
 import 'package:moments/app/di/di.dart';
+import 'package:moments/core/network/hive_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +12,7 @@ void main() async {
   ]);
 
   SystemChannels.platform.invokeMethod('HapticFeedback.vibrate');
+  await HiveService().init();
   await initDependency();
   runApp(const App());
 }

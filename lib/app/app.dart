@@ -5,7 +5,6 @@ import 'package:moments/core/app_theme/app_theme.dart';
 import 'package:moments/features/splash/presentation/view/splash_screen.dart';
 import 'package:moments/features/splash/presentation/view_model/splash_cubit.dart';
 
-
 // import 'package:moments/features/splashscreen/splash_screen.dart';
 
 class App extends StatelessWidget {

@@ -1,14 +1,10 @@
-import 'package:flutter/cupertino.dart'; // For CupertinoIcons
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:moments/features/posts/presentation/create_posts.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +48,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () {
-                            print("tapped");
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (BuildContext context) {
+                                return CreatePostBottomSheet(); // Use the widget here
+                              },
+                            );
                           },
                           child: const Padding(
                             padding: EdgeInsets.symmetric(
@@ -175,6 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      // Floating Action Button for creating a post
     );
   }
 }

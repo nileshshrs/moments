@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/app/widgets/flushbar_utils.dart';
 import 'package:moments/features/auth/presentation/view/registration_screen.dart';
-import 'package:moments/core/common/flushbar_utils.dart';
 import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
-import 'package:moments/features/home/presentation/view/home_view.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -79,24 +78,15 @@ class LoginScreen extends StatelessWidget {
                     onPressed: () {
                       final usernameOrEmail = usernameOrEmailController.text;
                       final password = passwordController.text;
+                      context.read<LoginBloc>().add(
+                            LoginUserEvent(
+                              context: context,
+                              username: usernameOrEmail,
+                              password: password,
+                            ),
+                          );
 
                       // Dispatch the login event
-                      if (usernameOrEmail.isNotEmpty && password.isNotEmpty) {
-                        context.read<LoginBloc>().add(
-                              LoginUserEvent(
-                                username: usernameOrEmail,
-                                password: password,
-                              ),
-                            );
-                      } else {
-                        FlushbarUtil.showMessage(
-                          context: context,
-                          message:
-                              "Please enter both username/email and password.",
-                          backgroundColor: const Color(0xFFF0635D),
-                          messageColor: Colors.white,
-                        );
-                      }
                     },
                     child: const Text("Sign in"),
                   ),
@@ -157,7 +147,7 @@ class LoginScreen extends StatelessWidget {
                             );
                       },
                       style: ButtonStyle(
-                        overlayColor: MaterialStateProperty.all<Color>(
+                        overlayColor: WidgetStateProperty.all<Color>(
                             Colors.transparent), // Disable highlight color
                       ),
                       child: const Text(
@@ -170,29 +160,7 @@ class LoginScreen extends StatelessWidget {
                     )
                   ],
                 ),
-                // Handle LoginState updates (loading, success, error)
-                BlocListener<LoginBloc, LoginState>(
-                  listener: (context, state) {
-                    if (state.isLoading) {
-                      // Show loading indicator if needed
-                    } else if (state.isSuccess) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const BottomNavigationView(),
-                        ),
-                      );
-                    } else if (state.errorMessage != null) {
-                      FlushbarUtil.showMessage(
-                        context: context,
-                        message: state.errorMessage!,
-                        backgroundColor: const Color(0xFFF0635D),
-                        messageColor: Colors.white,
-                      );
-                    }
-                  },
-                  child: Container(),
-                ),
+
               ],
             ),
           ),

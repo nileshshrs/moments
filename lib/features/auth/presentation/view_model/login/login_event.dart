@@ -23,25 +23,24 @@ class NavigateToRegisterScreenEvent extends LoginEvent {
 class NavigateHomeScreenEvent extends LoginEvent {
   final BuildContext context;
   final Widget destination;
-  final String username;
-  final String password;
 
   const NavigateHomeScreenEvent({
     required this.context,
     required this.destination,
-    required this.username,
-    required this.password,
+
   });
 
   @override
-  List<Object> get props => [context, destination, username, password];
+  List<Object> get props => [context, destination];
 }
 
 class LoginUserEvent extends LoginEvent {
+  final BuildContext context;
   final String username;
   final String password;
 
   const LoginUserEvent({
+    required this.context,
     required this.username,
     required this.password,
   });

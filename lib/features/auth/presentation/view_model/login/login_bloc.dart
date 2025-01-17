@@ -1,29 +1,37 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/app/di/di.dart';
+import 'package:moments/app/widgets/flushbar_utils.dart';
+import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
-import 'package:moments/features/home/presentation/view_model/home_cubit.dart';
+import 'package:moments/features/dashboard/presentation/dashboard_view.dart';
+import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final RegisterBloc _registerBloc;
-  final HomeCubit _homeCubit;
+  final DashboardCubit _dashboardCubit;
+  final LoginUserUsecase _loginUserUsecase;
 
   LoginBloc({
     required RegisterBloc registerBloc,
-    required HomeCubit homeCubit,
-  })  : _registerBloc = registerBloc,
-        _homeCubit = homeCubit,
+    required DashboardCubit dashboardCubit,
+    required LoginUserUsecase loginUserUsecase,
+  })  : _dashboardCubit = dashboardCubit,
+        _loginUserUsecase = loginUserUsecase,
         super(LoginState.initial()) {
     // Navigate to the Register Screen
     on<NavigateToRegisterScreenEvent>((event, emit) {
       Navigator.push(
         event.context,
         MaterialPageRoute(
-          builder: (context) => BlocProvider.value(
-            value: _registerBloc,
+          builder: (context) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<RegisterBloc>()),
+              BlocProvider.value(value: _dashboardCubit),
+            ],
             child: event.destination,
           ),
         ),
@@ -35,8 +43,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       Navigator.pushReplacement(
         event.context,
         MaterialPageRoute(
-          builder: (context) => BlocProvider.value(
-            value: _homeCubit,
+          builder: (context) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<RegisterBloc>()),
+              BlocProvider.value(value: _dashboardCubit),
+            ],
             child: event.destination,
           ),
         ),
@@ -45,32 +56,38 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     // Handle Login Event
     on<LoginUserEvent>((event, emit) async {
-      // Set loading state
-      emit(state.copyWith(isLoading: true, errorMessage: null));
+      emit(state.copyWith(
+          isLoading: true, isSuccess: false)); // Set loading state
 
-      try {
-        // Simulate a login validation process (e.g., API call)
-        await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+      await Future.delayed(Duration(seconds: 2));
+      // Simulate a login validation process (e.g., API call)
+      final params =
+          LoginParams(username: event.username, password: event.password);
 
-        if (event.username == "admin" && event.password == "admin123") {
-          // Successful login
+      final result = await _loginUserUsecase.call(params);
+
+      result.fold(
+        (failure) {
+          // On failure, update state
+          emit(state.copyWith(isLoading: false, isSuccess: false));
+          print("Login failed: ${failure.message}");
+          FlushbarUtil.showMessage(
+            context: event.context,
+            message:
+                "Invalid credentials, please try again!", // Use failure.message here
+            backgroundColor:Colors.white,
+            messageColor:  Color(0xFFF06360),
+          );
+        },
+        (token) {
+          // On success, update state and navigate
           emit(state.copyWith(isLoading: false, isSuccess: true));
-        } else {
-          // Login failed
-          emit(state.copyWith(
-            isLoading: false,
-            isSuccess: false,
-            errorMessage: "Invalid email or password.",
+          add(NavigateHomeScreenEvent(
+            context: event.context,
+            destination: DashboardView(),
           ));
-        }
-      } catch (e) {
-        // Handle unexpected errors
-        emit(state.copyWith(
-          isLoading: false,
-          isSuccess: false,
-          errorMessage: "An unexpected error occurred.",
-        ));
-      }
+        },
+      );
     });
   }
 }

@@ -1,21 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:moments/features/view/bottom_navigation/account_screen.dart';
-import 'package:moments/features/view/bottom_navigation/chat_screen.dart';
-import 'package:moments/features/view/bottom_navigation/home_screen.dart';
-import 'package:moments/features/view/bottom_navigation/search_screen.dart';
+import 'package:moments/features/dashboard/presentation/view/account_screen.dart';
+import 'package:moments/features/dashboard/presentation/view/chat_screen.dart';
+import 'package:moments/features/dashboard/presentation/view/home_screen.dart';
+import 'package:moments/features/dashboard/presentation/view/search_screen.dart';
 
-class HomeState extends Equatable {
+
+class DashboardState extends Equatable {
   final int selectedIndex;
   final List<Widget> views;
 
-  const HomeState({
+  const DashboardState({
     required this.selectedIndex,
     required this.views,
   });
 
-  static HomeState initial() {
-    return const HomeState(
+  static DashboardState initial() {
+    return const DashboardState(
       selectedIndex: 0,
       views: [
         HomeScreen(),
@@ -27,11 +28,11 @@ class HomeState extends Equatable {
   }
 
   // Add `copyWith` method for immutability
-  HomeState copyWith({
+  DashboardState copyWith({
     int? selectedIndex,
     List<Widget>? views,
   }) {
-    return HomeState(
+    return DashboardState(
       selectedIndex: selectedIndex ?? this.selectedIndex,
       views: views ?? this.views,
     );

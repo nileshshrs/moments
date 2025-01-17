@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moments/core/common/custom_textformfield.dart';
+import 'package:moments/app/di/di.dart';
+import 'package:moments/app/widgets/custom_textformfield.dart';
 import 'package:moments/features/auth/presentation/view/login_screen.dart';
 import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
+import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
+import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 
 class RegistrationScreen extends StatelessWidget {
   RegistrationScreen({super.key});
 
   final Color primaryColor = const Color(0xFF63C57A);
-
   final Color textMutedColor = Colors.grey;
 
   final TextEditingController _usernameController = TextEditingController();
-
   final TextEditingController _emailController = TextEditingController();
-
   final TextEditingController _passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  // Key for form validation
   final _emailRegex =
       RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-
   final _usernameRegex = RegExp(r'^[a-zA-Z0-9_]+$');
-
   final _passwordRegex =
       RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,24}$');
 
-  void register() {
+  void _register(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      print(
-          'username: ${_usernameController.text}, email: ${_emailController.text}, password: ${_passwordController.text}');
-      _formKey.currentState!.reset();
+      context.read<RegisterBloc>().add(RegisterUser(
+            context: context,
+            username: _usernameController.text.trim(),
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          ));
     }
   }
 
@@ -92,7 +92,7 @@ class RegistrationScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: register,
+                    onPressed: () => _register(context),
                     child: const Text("Sign up"),
                   ),
                 ),
@@ -123,17 +123,24 @@ class RegistrationScreen extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Dispatch event to navigate to RegistrationScreen
-                        context.read<LoginBloc>().add(
-                              NavigateToRegisterScreenEvent(
-                                context: context,
-                                destination: const LoginScreen(),
-                              ),
-                            );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MultiBlocProvider(
+                              providers: [
+                                BlocProvider.value(value: getIt<LoginBloc>()),
+                                BlocProvider.value(
+                                    value: getIt<
+                                        DashboardCubit>()), // Pass the relevant blocs
+                              ],
+                              child: LoginScreen(),
+                            ),
+                          ),
+                        );
                       },
                       style: ButtonStyle(
                         overlayColor:
-                            WidgetStateProperty.all<Color>(Colors.transparent),
+                            WidgetStateProperty.all(Colors.transparent),
                       ),
                       child: Text(
                         "Sign in",
@@ -143,9 +150,9 @@ class RegistrationScreen extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    )
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),

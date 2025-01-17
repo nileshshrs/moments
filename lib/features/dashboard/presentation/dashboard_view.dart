@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moments/features/home/presentation/view_model/home_cubit.dart';
-import 'package:moments/features/home/presentation/view_model/home_state.dart';
+import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
+import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
+import 'package:moments/features/posts/presentation/create_posts.dart';
 
-class BottomNavigationView extends StatelessWidget {
-  const BottomNavigationView({super.key});
+class DashboardView extends StatelessWidget {
+  const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => HomeCubit(),
-      child: BlocBuilder<HomeCubit, HomeState>(
+      create: (_) => DashboardCubit(),
+      child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
-          final cubit = context.read<HomeCubit>();
+          final cubit = context.read<DashboardCubit>();
 
           return Scaffold(
             appBar: state.selectedIndex == 1
@@ -21,12 +22,23 @@ class BottomNavigationView extends StatelessWidget {
                     actions: state.selectedIndex == 0
                         ? [
                             IconButton(
+                              splashColor:
+                                  Colors.transparent, // Disables splash effect
+                              highlightColor: Colors
+                                  .transparent, // Disables highlight effect
+                              splashRadius: null, // Removes the splash radius
                               icon: const Icon(
                                 Icons.add_circle,
                                 color: Colors.black,
                               ),
                               onPressed: () {
-                                print("Add button pressed");
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) {
+                                    return CreatePostBottomSheet(); // Use the widget here
+                                  },
+                                );
                               },
                             ),
                           ]
