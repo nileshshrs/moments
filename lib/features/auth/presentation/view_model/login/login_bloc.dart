@@ -75,8 +75,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             context: event.context,
             message:
                 "Invalid credentials, please try again!", // Use failure.message here
-            backgroundColor:Colors.white,
-            messageColor:  Color(0xFFF06360),
+            backgroundColor: Color(0xFFF06360),
+            messageColor: Colors.white,
           );
         },
         (token) {
