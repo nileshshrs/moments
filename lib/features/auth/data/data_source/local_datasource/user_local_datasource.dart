@@ -44,7 +44,7 @@ class UserLocalDatasource implements IUserDataSource {
       final userHiveModel = await _hiveService.loginUser(username, password);
       if (userHiveModel == null ||
           userHiveModel.username.isEmpty ||
-          userHiveModel.password.isEmpty) {
+          (userHiveModel.password?.isEmpty ?? true)) {
         throw Exception("Invalid username or password");
       }
       return userHiveModel.toEntity();

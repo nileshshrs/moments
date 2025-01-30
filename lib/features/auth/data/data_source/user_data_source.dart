@@ -4,5 +4,5 @@ abstract interface class IUserDataSource {
   Future<void> createUser(UserEntity userEntity);
   Future<List<UserEntity>> getAllUsers();
   Future<void> deleteUser(String id);
-  Future<UserEntity> login(String username, String password);
+  Future<dynamic> login(String username, String password);
 }

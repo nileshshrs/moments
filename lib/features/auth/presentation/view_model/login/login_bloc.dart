@@ -65,6 +65,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           LoginParams(username: event.username, password: event.password);
 
       final result = await _loginUserUsecase.call(params);
+      print(result);
 
       result.fold(
         (failure) {

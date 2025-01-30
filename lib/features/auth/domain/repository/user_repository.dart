@@ -6,5 +6,5 @@ abstract interface class IUserRepository {
   Future<Either<Failure, void>> createUser(UserEntity userEntity);
   Future<Either<Failure, List<UserEntity>>> getAllUseres();
   Future<Either<Failure, void>> deleteUser(String id);
-  Future<Either<Failure, UserEntity>> login(String username, String password);
+  Future<Either<Failure, dynamic>> login(String username, String password);
 }

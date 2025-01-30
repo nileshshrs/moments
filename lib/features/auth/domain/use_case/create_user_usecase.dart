@@ -33,12 +33,12 @@ class CreateUserUsecase implements UsecaseWithParams<void, CreateUserParams> {
   Future<Either<Failure, void>> call(CreateUserParams params) async {
     // Create the user entity from the params
     final userEntity = UserEntity(
-      id: null, // The ID will be generated automatically by UserHiveModel
+      userId: null, // The ID will be generated automatically by UserHiveModel
       email: params.email,
       username: params.username,
       password: params.password,
       image: null,
-      status: null, // You can pass null or default value here
+      bio: null, // You can pass null or default value here
       verified: params.verified,
     );
 

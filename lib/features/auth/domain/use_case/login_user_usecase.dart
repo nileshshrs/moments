@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:moments/app/usecase/usecase.dart';
 import 'package:moments/core/error/failure.dart';
-import 'package:moments/features/auth/domain/entity/user_entity.dart';
 import 'package:moments/features/auth/domain/repository/user_repository.dart';
 
 
@@ -30,7 +29,7 @@ class LoginUserUsecase implements UsecaseWithParams<void, LoginParams> {
   const LoginUserUsecase({required this.userRepository});
 
   @override
-  Future<Either<Failure, UserEntity>> call(LoginParams params) async{
+  Future<Either<Failure, dynamic>> call(LoginParams params) async{
     return await userRepository.login(params.username, params.password);
   }
 }
