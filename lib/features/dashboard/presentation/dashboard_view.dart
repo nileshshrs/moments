@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/app/di/di.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
-import 'package:moments/features/posts/presentation/create_posts.dart';
+import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
+import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -34,9 +36,15 @@ class DashboardView extends StatelessWidget {
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
+                                  useSafeArea: true,
                                   isScrollControlled: true,
                                   builder: (BuildContext context) {
-                                    return CreatePostBottomSheet(); // Use the widget here
+                                    return BlocProvider<PostBloc>(
+                                      create: (_) => getIt<
+                                          PostBloc>(), // Provide PostBloc here
+                                      child:
+                                          CreatePostBottomSheet(), // Use the widget here
+                                    );
                                   },
                                 );
                               },

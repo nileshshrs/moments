@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:moments/features/posts/presentation/create_posts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/app/di/di.dart';
+import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
+import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -52,7 +55,12 @@ class HomeScreen extends StatelessWidget {
                               context: context,
                               isScrollControlled: true,
                               builder: (BuildContext context) {
-                                return CreatePostBottomSheet(); // Use the widget here
+                                return BlocProvider<PostBloc>(
+                                  create: (_) => getIt<
+                                      PostBloc>(), // Provide PostBloc here
+                                  child:
+                                      CreatePostBottomSheet(), // Use the widget here
+                                );
                               },
                             );
                           },

@@ -7,6 +7,7 @@ import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
 import 'package:moments/features/dashboard/presentation/dashboard_view.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
+import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
@@ -47,6 +48,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             providers: [
               BlocProvider.value(value: getIt<RegisterBloc>()),
               BlocProvider.value(value: _dashboardCubit),
+              BlocProvider.value(value: getIt<PostBloc>())
             ],
             child: event.destination,
           ),
@@ -65,7 +67,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           LoginParams(username: event.username, password: event.password);
 
       final result = await _loginUserUsecase.call(params);
-      print(result);
 
       result.fold(
         (failure) {

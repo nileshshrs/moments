@@ -37,12 +37,12 @@ class UserRemoteRepository implements IUserRepository {
     try {
       final loginDto = await _userRemoteDatasource.login(username, password);
 
-      print("Raw API Response: ${loginDto.toJson()}"); // Debugging output
+      // print("Raw API Response: ${loginDto.toJson()}"); // Debugging output
 
       return Right(loginDto);
     } catch (e, stacktrace) {
-      print("Error: $e");
-      print("Stacktrace: $stacktrace"); // Helps debug
+      // print("Error: $e");
+      // print("Stacktrace: $stacktrace"); // Helps debug
       return Left(ApiFailure(message: e.toString(), statusCode: 401));
     }
   }

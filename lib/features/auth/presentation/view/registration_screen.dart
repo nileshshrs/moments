@@ -92,7 +92,14 @@ class RegistrationScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => _register(context),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _register(context);
+                        _emailController.clear();
+                        _usernameController.clear();
+                        _passwordController.clear();
+                      }
+                    },
                     child: const Text("Sign up"),
                   ),
                 ),
