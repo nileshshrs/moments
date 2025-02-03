@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:moments/features/posts/data/dto/post_dto.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
+import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
 
 part 'post_event.dart';
@@ -12,15 +14,21 @@ part 'post_state.dart';
 class PostBloc extends Bloc<PostEvent, PostState> {
   final CreatePostUsecase _createPostUsecase;
   final UploadImageUsecase _uploadImageUsecase;
+  final GetPostsUsecase _getPostsUsecase;
 
-  PostBloc(
-      {required CreatePostUsecase createPostUsecase,
-      required UploadImageUsecase uploadImageUsecase})
-      : _uploadImageUsecase = uploadImageUsecase,
+  PostBloc({
+    required CreatePostUsecase createPostUsecase,
+    required UploadImageUsecase uploadImageUsecase,
+    required GetPostsUsecase getPostUsecase,
+  })  : _uploadImageUsecase = uploadImageUsecase,
         _createPostUsecase = createPostUsecase,
+        _getPostsUsecase = getPostUsecase,
         super(PostState.initial()) {
     on<CreatePost>(_createPosts);
     on<UploadImage>(_onLoadImage);
+    on<LoadPosts>(_loadPosts);
+
+    add(LoadPosts());
   }
   void _createPosts(CreatePost event, Emitter<PostState> emit) async {
     emit(state.copyWith(isLoading: true, isSuccess: false));
@@ -32,13 +40,12 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       (failure) {
         // Handle failure case
         emit(state.copyWith(
-          isLoading: false,
-          isSuccess: false,
-        ));
+            isLoading: false, isSuccess: false, error: failure.message));
       },
       (_) {
         // Handle success case
         emit(state.copyWith(isLoading: false, isSuccess: true));
+        add(LoadPosts());
       },
     );
   }
@@ -55,7 +62,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     result.fold(
       (failure) {
         // Handle failure case (show error or log)
-        emit(state.copyWith(isLoading: false, isSuccess: false));
+        emit(state.copyWith(
+            isLoading: false, isSuccess: false, error: failure.message));
       },
       (imageUrls) {
         // Handle success case (update the state with the uploaded image URLs)
@@ -64,4 +72,28 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       },
     );
   }
+
+  Future<void> _loadPosts(LoadPosts event, Emitter<PostState> emit) async {
+    // Set loading state and reset success/error
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+
+    // Call use case to fetch posts
+    final results = await _getPostsUsecase.call();
+
+    // Unpack the result using fold and update the state accordingly
+    results.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        isSuccess: false,
+        error: failure.message,
+        posts: [], // Ensuring the posts list is empty on error
+      )),
+      (posts) => emit(state.copyWith(
+        isLoading: false,
+        isSuccess: true,
+        posts: posts, // Update posts list when successful
+      )),
+    );
+  }
+  
 }

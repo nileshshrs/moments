@@ -13,6 +13,7 @@ import 'package:moments/features/dashboard/presentation/view_model/dashboard_cub
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
+import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/splash/presentation/view_model/splash_cubit.dart';
@@ -154,10 +155,14 @@ Future<void> _initPostDependencies() async {
     () => UploadImageUsecase(getIt<PostRemoteRepository>()),
   );
 
+  getIt.registerLazySingleton<GetPostsUsecase>(
+    () => GetPostsUsecase(getIt<PostRemoteRepository>()),
+  );
   // Register PostBloc
   getIt.registerFactory<PostBloc>(
     () => PostBloc(
         createPostUsecase: getIt<CreatePostUsecase>(),
-        uploadImageUsecase: getIt<UploadImageUsecase>()),
+        uploadImageUsecase: getIt<UploadImageUsecase>(),
+        getPostUsecase: getIt<GetPostsUsecase>()),
   );
 }

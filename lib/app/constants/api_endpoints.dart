@@ -12,7 +12,8 @@ class ApiEndpoints {
 
   //posts
   static const String createPosts = "post/create";
-  
+  static const String getPosts = "post/get";
+
   // image
   static const String upload = "upload/images";
   //add more later

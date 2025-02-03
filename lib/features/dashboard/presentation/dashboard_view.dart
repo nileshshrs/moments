@@ -11,8 +11,11 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => DashboardCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DashboardCubit()),
+        BlocProvider(create: (_) => getIt<PostBloc>()), // Provide PostBloc here
+      ],
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
           final cubit = context.read<DashboardCubit>();
@@ -24,27 +27,18 @@ class DashboardView extends StatelessWidget {
                     actions: state.selectedIndex == 0
                         ? [
                             IconButton(
-                              splashColor:
-                                  Colors.transparent, // Disables splash effect
-                              highlightColor: Colors
-                                  .transparent, // Disables highlight effect
-                              splashRadius: null, // Removes the splash radius
-                              icon: const Icon(
-                                Icons.add_circle,
-                                color: Colors.black,
-                              ),
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              splashRadius: null,
+                              icon: const Icon(Icons.add_circle,
+                                  color: Colors.black),
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
                                   useSafeArea: true,
                                   isScrollControlled: true,
                                   builder: (BuildContext context) {
-                                    return BlocProvider<PostBloc>(
-                                      create: (_) => getIt<
-                                          PostBloc>(), // Provide PostBloc here
-                                      child:
-                                          CreatePostBottomSheet(), // Use the widget here
-                                    );
+                                    return CreatePostBottomSheet();
                                   },
                                 );
                               },
@@ -53,10 +47,8 @@ class DashboardView extends StatelessWidget {
                         : state.selectedIndex == 2
                             ? [
                                 IconButton(
-                                  icon: const Icon(
-                                    Icons.edit_square,
-                                    color: Colors.black,
-                                  ),
+                                  icon: const Icon(Icons.edit_square,
+                                      color: Colors.black),
                                   onPressed: () {
                                     print("Create message button pressed");
                                   },
@@ -83,9 +75,7 @@ class DashboardView extends StatelessWidget {
                             ),
                           ),
                   ),
-            body: SafeArea(
-              child: state.views[state.selectedIndex],
-            ),
+            body: SafeArea(child: state.views[state.selectedIndex]),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: state.selectedIndex,
               onTap: cubit.onTabTapped,
@@ -93,25 +83,16 @@ class DashboardView extends StatelessWidget {
               type: BottomNavigationBarType.fixed,
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.camera_outlined),
-                  label: 'Home',
-                ),
+                    icon: Icon(Icons.camera_outlined), label: 'Home'),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.search),
-                  label: 'Search',
-                ),
+                    icon: Icon(Icons.search), label: 'Search'),
                 BottomNavigationBarItem(
                   icon: Icon(IconData(0xf3fb,
                       fontFamily: 'CupertinoIcons',
                       fontPackage: 'cupertino_icons')),
                   label: "Chat",
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.person,
-                  ),
-                  label: 'Me',
-                ),
+                BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Me'),
               ],
             ),
           );

@@ -6,4 +6,6 @@ abstract interface class IPostDataSource {
   Future<void> createPosts(PostEntity post);
 
   Future<List<String>> uploadImages(List<File> file);
+
+  Future<dynamic> getPosts();
 }

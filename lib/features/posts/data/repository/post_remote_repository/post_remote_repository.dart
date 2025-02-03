@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:moments/core/error/failure.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
+import 'package:moments/features/posts/data/dto/post_dto.dart';
 import 'package:moments/features/posts/domain/entity/post_entity.dart';
 import 'package:moments/features/posts/domain/repository/post_repository.dart';
 
@@ -27,6 +28,17 @@ class PostRemoteRepository implements IPostRepository {
       return Right(images);
     } catch (e) {
       return Left(ApiFailure(message: e.toString(), statusCode: 400));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PostDTO>>> getPosts() async {
+    try {
+      final posts = await _postRemoteDatasource.getPosts();
+      return Right(posts);
+    } catch (e) {
+      return Left(
+         ApiFailure(message: e.toString()));
     }
   }
 }

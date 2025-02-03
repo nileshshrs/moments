@@ -100,13 +100,25 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                     ),
                     ElevatedButton(
                       onPressed: _images.isNotEmpty
-                          ? () {
+                          ? () async {
                               context
                                   .read<PostBloc>()
                                   .add(CreatePost(content: _controller.text));
 
-                              // Post button action
-                              // Implement post logic here
+                              // Wait for 2 seconds
+                              await Future.delayed(Duration(seconds: 2));
+
+                              // Clear the text controller
+                              _controller.clear();
+
+                              // Check if the widget is still mounted before calling setState and using context
+                              if (!context.mounted) return;
+
+                              setState(() {
+                                _images = [];
+                              });
+
+                              Navigator.pop(context);
                             }
                           : null,
                       style: ElevatedButton.styleFrom(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:moments/app/constants/api_endpoints.dart';
 import 'package:moments/features/posts/data/data_source/post_data_source.dart';
+import 'package:moments/features/posts/data/dto/post_dto.dart';
 import 'package:moments/features/posts/domain/entity/post_entity.dart';
 
 class PostRemoteDatasource implements IPostDataSource {
@@ -69,6 +70,32 @@ class PostRemoteDatasource implements IPostDataSource {
       throw Exception('DioException: $e');
     } catch (e) {
       throw Exception('Exception: $e');
+    }
+  }
+
+  @override
+  Future<List<PostDTO>> getPosts() async {
+    try {
+      // Making a GET request to fetch posts
+      Response res = await _dio.get(
+        ApiEndpoints.getPosts, // Define your endpoint in ApiEndpoints class
+      );
+
+      if (res.statusCode == 200) {
+        // If the request is successful, parse the response data
+        List<dynamic> postsJson = res.data;
+        // Convert the JSON data to a list of PostDTO objects
+        List<PostDTO> posts =
+            postsJson.map((json) => PostDTO.fromJson(json)).toList();
+        return posts; // Return the parsed posts
+      } else {
+        // Handle errors if the status code is not 200
+        throw Exception('Failed to load posts. Status code: ${res.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw Exception('DioException: $e');
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }

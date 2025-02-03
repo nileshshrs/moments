@@ -22,3 +22,7 @@ class UploadImage extends PostEvent {
 
   const UploadImage({required this.files});
 }
+
+class LoadPosts extends PostEvent {}
+
+class LoadMorePosts extends PostEvent {}
