@@ -11,6 +11,7 @@ PostDTO _$PostDTOFromJson(Map<String, dynamic> json) => PostDTO(
       user: UserDTO.fromJson(json['user'] as Map<String, dynamic>),
       content: json['content'] as String,
       image: (json['image'] as List<dynamic>).map((e) => e as String).toList(),
+      createdAt: json['createdAt'] as String,
     );
 
 Map<String, dynamic> _$PostDTOToJson(PostDTO instance) => <String, dynamic>{
@@ -18,6 +19,7 @@ Map<String, dynamic> _$PostDTOToJson(PostDTO instance) => <String, dynamic>{
       'user': instance.user,
       'content': instance.content,
       'image': instance.image,
+      'createdAt': instance.createdAt,
     };
 
 UserDTO _$UserDTOFromJson(Map<String, dynamic> json) => UserDTO(

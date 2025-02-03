@@ -9,12 +9,14 @@ class PostDTO {
   final UserDTO user;
   final String content;
   final List<String> image;
+  final String createdAt;
 
   PostDTO({
     required this.id,
     required this.user,
     required this.content,
     required this.image,
+    required this.createdAt
   });
 
   // Factory method to generate a PostDTO from JSON

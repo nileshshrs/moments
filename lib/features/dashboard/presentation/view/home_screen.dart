@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/app/di/di.dart';
+import 'package:moments/core/utils/time_ago_formatter.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 
@@ -112,21 +113,24 @@ class HomeScreen extends StatelessWidget {
                                       radius: 10,
                                       backgroundImage: NetworkImage(
                                           'https://avatars.pfptown.com/156/anime-boy-pfp-4244.png'),
+                                      //'https://avatars.pfptown.com/156/anime-boy-pfp-4244.png'
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  const Column(
+                                  Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Username', // Replace with actual username
+                                        post.user.username ??
+                                            'username', // Replace with actual username
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
                                       SizedBox(height: 2),
                                       Text(
-                                        '2 hours ago', // Replace with actual date/time
+                                        TimeAgoFormatter.format(post
+                                            .createdAt), // Replace with actual date/time
                                         style: TextStyle(
                                             fontWeight: FontWeight.w200),
                                       ),
@@ -135,9 +139,16 @@ class HomeScreen extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              const Text(
-                                'This is the content of the post. Here you can add text, image, or whatever is necessary.',
-                                style: TextStyle(fontSize: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  post.content,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                  //'This is the content of the post. Here you can add text, image, or whatever is necessary.'
+                                ),
                               ),
                               const SizedBox(height: 8),
                               // Post Image: Use Expanded for full available height
