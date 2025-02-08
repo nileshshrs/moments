@@ -17,7 +17,7 @@ class PostRemoteDatasource implements IPostDataSource {
         "content": post.content,
         "image": post.image,
       });
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return;
       } else {
         throw Exception(response.statusMessage);
@@ -85,7 +85,7 @@ class PostRemoteDatasource implements IPostDataSource {
         // If the request is successful, parse the response data
         List<dynamic> postsJson = res.data;
         // Convert the JSON data to a list of PostDTO objects
-        List<PostDTO> posts =
+      List<PostDTO> posts =
             postsJson.map((json) => PostDTO.fromJson(json)).toList();
         return posts; // Return the parsed posts
       } else {

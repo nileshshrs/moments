@@ -39,12 +39,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     result.fold(
       (failure) {
         // Handle failure case
-        emit(state.copyWith(
-            isLoading: false, isSuccess: false, error: failure.message));
+        emit(state.copyWith(isLoading: false, isSuccess: false));
       },
       (_) {
         // Handle success case
-        emit(state.copyWith(isLoading: false, isSuccess: true));
+        emit(state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+        ));
         add(LoadPosts());
       },
     );
@@ -62,8 +64,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     result.fold(
       (failure) {
         // Handle failure case (show error or log)
-        emit(state.copyWith(
-            isLoading: false, isSuccess: false, error: failure.message));
+        emit(state.copyWith(isLoading: false, isSuccess: false));
       },
       (imageUrls) {
         // Handle success case (update the state with the uploaded image URLs)
@@ -85,15 +86,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       (failure) => emit(state.copyWith(
         isLoading: false,
         isSuccess: false,
-        error: failure.message,
-        posts: [], // Ensuring the posts list is empty on error
       )),
-      (posts) => emit(state.copyWith(
-        isLoading: false,
-        isSuccess: true,
-        posts: posts, // Update posts list when successful
-      )),
+      (posts) {
+        emit(state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          posts: posts, // Update posts list when successful
+        ));
+      },
     );
   }
-  
 }

@@ -15,6 +15,9 @@ class CreatePost extends PostEvent {
     this.context,
     this.content,
   });
+
+  @override
+  List<Object> get props => [];
 }
 
 class UploadImage extends PostEvent {

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moments/app/di/di.dart';
 import 'package:moments/core/utils/time_ago_formatter.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
@@ -54,13 +53,13 @@ class HomeScreen extends StatelessWidget {
                           onTap: () {
                             showModalBottomSheet(
                               context: context,
+                              useSafeArea: true,
                               isScrollControlled: true,
-                              builder: (BuildContext context) {
-                                return BlocProvider<PostBloc>(
-                                  create: (_) => getIt<
-                                      PostBloc>(), // Provide PostBloc here
-                                  child:
-                                      CreatePostBottomSheet(), // Use the widget here
+                              builder: (BuildContext bottomSheetContext) {
+                                return BlocProvider.value(
+                                  value: context.read<
+                                      PostBloc>(), // Pass down the existing PostBloc
+                                  child: CreatePostBottomSheet(),
                                 );
                               },
                             );

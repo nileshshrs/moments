@@ -22,12 +22,13 @@ class DashboardState extends Equatable {
     return DashboardState(
       selectedIndex: 0,
       views: [
-        MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: getIt<PostBloc>()),
-          ],
-          child: HomeScreen(),
-        ),
+        // MultiBlocProvider(
+        //   providers: [
+        //     BlocProvider.value(value: getIt<PostBloc>()),
+        //   ],
+        //   child: HomeScreen(),
+        // ),
+        HomeScreen(),
         SearchScreen(),
         ChatScreen(),
         ProfileScreen(),

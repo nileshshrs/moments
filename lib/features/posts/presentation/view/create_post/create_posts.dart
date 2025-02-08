@@ -89,7 +89,7 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                               _images = [];
                             });
                             Navigator.pop(context); // Close the modal
-                          },
+                          }, 
                         ),
                         const Text(
                           'Create post',
