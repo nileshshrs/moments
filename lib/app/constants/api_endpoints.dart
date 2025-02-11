@@ -5,19 +5,24 @@ class ApiEndpoints {
   static const Duration receiveTimeout = Duration(seconds: 1000);
 
   static const String baseUrl = "http://10.0.2.2:6278/api/v1/";
-  //auth
+  //auth - login/ register page/ splash screen
   static const String login = "auth/mobile/sign-in";
-  static const String register = "auth/sign-up"; 
+  static const String register = "auth/sign-up";
   static const String refresh = "auth/mobile/refresh";
 
-  //posts
+  //posts - home page
   static const String createPosts = "post/create";
-  static const String getPosts = "post/get";
+  static const String getPosts = "post/mobile/get";
 
-  // image
+  // image - image upload in create post
   static const String upload = "upload/images";
 
-  //users
+  //users - search page
   static const String getAllUsers = "user/all";
+
+  //account page
+  static const String profile = "user/profile";
+  static const String getPostsByUser = "post/getByUser";
+
   //add more later
 }

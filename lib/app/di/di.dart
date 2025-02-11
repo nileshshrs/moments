@@ -7,6 +7,7 @@ import 'package:moments/features/auth/data/data_source/remote_datasource/user_re
 import 'package:moments/features/auth/data/repository/user_remote_repository.dart';
 import 'package:moments/features/auth/domain/use_case/create_user_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/get_all_user_usecase.dart';
+import 'package:moments/features/auth/domain/use_case/get_user_profile_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
@@ -14,9 +15,11 @@ import 'package:moments/features/dashboard/presentation/view_model/dashboard_cub
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
+import 'package:moments/features/posts/domain/use_case/get_posts_by_user_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
+import 'package:moments/features/profile/view_model/profile_bloc.dart';
 import 'package:moments/features/search/view_model/search_bloc.dart';
 import 'package:moments/features/splash/presentation/view_model/splash_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,6 +42,7 @@ Future<void> initDependency() async {
 
   await _initPostDependencies();
   await initSearchDependencies(); // Move this outside the other function
+  await initUserProfileDependencies();
 }
 
 Future<void> _initSharedPreferences() async {
@@ -161,6 +165,12 @@ Future<void> _initPostDependencies() async {
   getIt.registerLazySingleton<GetPostsUsecase>(
     () => GetPostsUsecase(getIt<PostRemoteRepository>()),
   );
+
+  getIt.registerLazySingleton<GetPostsByUserUsecase>(
+    () => GetPostsByUserUsecase(
+      repository: getIt<PostRemoteRepository>(),
+    ),
+  );
   // Register PostBloc
   getIt.registerFactory<PostBloc>(
     () => PostBloc(
@@ -190,5 +200,34 @@ Future<void> initSearchDependencies() async {
   getIt.registerFactory<SearchBloc>(
     () => SearchBloc(getAllUserUsecase: getIt<GetAllUserUsecase>()),
   );
-  
+}
+
+Future<void> initUserProfileDependencies() async {
+  if (!getIt.isRegistered<UserRemoteDatasource>()) {
+    getIt.registerFactory<UserRemoteDatasource>(
+      () => UserRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  if (!getIt.isRegistered<UserRemoteRepository>()) {
+    getIt.registerLazySingleton<UserRemoteRepository>(
+      () => UserRemoteRepository(getIt<UserRemoteDatasource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetUserProfileUsecase>()) {
+    getIt.registerLazySingleton<GetUserProfileUsecase>(
+      () => GetUserProfileUsecase(
+        userRepository: getIt<UserRemoteRepository>(),
+      ),
+    );
+  }
+
+  // Register ProfileBloc with the correct Usecase
+  getIt.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      userProfileUsecase: getIt<GetUserProfileUsecase>(),
+      getPostsByUserUsecase: getIt<GetPostsByUserUsecase>(),
+    ),
+  );
 }

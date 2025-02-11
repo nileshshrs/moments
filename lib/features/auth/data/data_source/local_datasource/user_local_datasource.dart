@@ -52,4 +52,10 @@ class UserLocalDatasource implements IUserDataSource {
       throw Exception(e);
     }
   }
+  
+  @override
+  Future<UserEntity> getUserProfile() {
+    // TODO: implement getUserProfile
+    throw UnimplementedError();
+  }
 }

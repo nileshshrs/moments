@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/core/utils/formatter.dart';
 import 'package:moments/core/utils/time_ago_formatter.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
@@ -83,7 +84,17 @@ class HomeScreen extends StatelessWidget {
               BlocBuilder<PostBloc, PostState>(
                 builder: (context, state) {
                   if (state.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    // Wrap CircularProgressIndicator in a Container with proper constraints
+                    return Container(
+                      height: MediaQuery.of(context).size.height *
+                          .5, // Use screen height
+                      width: double.infinity, // Full width
+                      color: Colors
+                          .white, // Optional: add a translucent background
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                   } else if (state.posts == null || state.posts!.isEmpty) {
                     return const Center(
                         child: Text("No posts as of currently."));
@@ -121,8 +132,9 @@ class HomeScreen extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        post.user.username ??
-                                            'username', // Replace with actual username
+                                        Formatter.capitalize(post
+                                                .user.username ??
+                                            'username'), // Replace with actual username
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),

@@ -50,4 +50,14 @@ class UserRemoteRepository implements IUserRepository {
       return Left(ApiFailure(message: e.toString(), statusCode: 401));
     }
   }
+
+  @override
+  Future<Either<Failure, UserEntity>> getUserProfile() async {
+    try {
+      final user = await _userRemoteDatasource.getUserProfile();
+      return Right(user);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
 }

@@ -58,6 +58,15 @@ class LoginUserUsecase implements UsecaseWithParams<void, LoginParams> {
                     print('Error fetching Refresh Token: ${failure.message}'),
                 (token) => print('Refresh Token: $token'),
               );
+              //save user id
+              await sharedPrefs.setUserID(response.user.userId);
+
+              //retrieve userID to check
+              final userIDResults = await sharedPrefs.getUserID();
+              userIDResults.fold(
+                (failure) => print('Error fetching userID ${failure.message}'),
+                (userID) => print('user id: $userID'),
+              );
 
               return Right(response);
             },

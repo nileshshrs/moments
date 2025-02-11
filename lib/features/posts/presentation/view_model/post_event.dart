@@ -28,4 +28,4 @@ class UploadImage extends PostEvent {
 
 class LoadPosts extends PostEvent {}
 
-class LoadMorePosts extends PostEvent {}
+class LoadPostsByUser extends PostEvent {}

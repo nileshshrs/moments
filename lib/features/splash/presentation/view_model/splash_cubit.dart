@@ -12,17 +12,19 @@ class SplashCubit extends Cubit<void> {
 
   Future<void> init(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 3), () async {
-      // Check SharedPreferences for the accessToken
+      // Check SharedPreferences for required tokens
       final prefs = await SharedPreferences.getInstance();
-      final accessToken = prefs.getString('accessToken');
+      final accessToken = prefs.getString('accessToken') ?? '';
+      final refreshToken = prefs.getString('refreshToken') ?? '';
+      final userID = prefs.getString('userID') ?? '';
 
-      // Open Dashboard if accessToken exists, else open Login screen
+      // Navigate to Dashboard only if all tokens are available and non-empty
       if (context.mounted) {
-        if (accessToken != null && accessToken.isNotEmpty) {
+        if (accessToken.isNotEmpty && refreshToken.isNotEmpty && userID.isNotEmpty) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => const DashboardView(), // Replace with your actual DashboardScreen
+              builder: (context) => const DashboardView(),
             ),
           );
         } else {

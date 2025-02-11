@@ -42,8 +42,7 @@ class UserRemoteDatasource implements IUserDataSource {
   @override
   Future<List<UserEntity>> getAllUsers() async {
     try {
-      Response res =
-          await _dio.get(ApiEndpoints.getAllUsers);
+      Response res = await _dio.get(ApiEndpoints.getAllUsers);
       if (res.statusCode == 200 || res.statusCode == 201) {
         List<UserEntity> users = res.data
             .map<UserEntity>((json) => UserModel.fromJson(json).toEntity())
@@ -97,16 +96,23 @@ class UserRemoteDatasource implements IUserDataSource {
       throw Exception(e);
     }
   }
+
+  @override
+  Future<UserEntity> getUserProfile() async {
+    try {
+      Response res = await _dio.get(ApiEndpoints.profile);
+      print(res);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        UserModel userModel = UserModel.fromJson(res.data);
+        return userModel.toEntity();
+      } else {
+        throw Exception(
+            'Failed to fetch user profile: ${res.statusCode} - ${res.statusMessage}');
+      }
+    } on DioException catch (e) {
+      throw Exception(e);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 }
-
-// void main() async {
-//   final Dio dio = Dio();
-//   final userRemoteDatasource = UserRemoteDatasource(dio);
-
-//   try {
-//     List<UserEntity> users = await userRemoteDatasource.getAllUsers();
-//     print('Fetched Users: $users');
-//   } catch (e) {
-//     print('Error fetching users: $e');
-//   }
-// }

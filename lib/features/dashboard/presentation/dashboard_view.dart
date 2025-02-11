@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/app/di/di.dart';
+import 'package:moments/core/utils/formatter.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
+import 'package:moments/features/profile/view_model/profile_bloc.dart';
 import 'package:moments/features/search/view_model/search_bloc.dart';
 
 class DashboardView extends StatelessWidget {
@@ -16,7 +18,8 @@ class DashboardView extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => DashboardCubit()),
         BlocProvider(create: (_) => getIt<PostBloc>()), // Provide PostBloc here
-        BlocProvider(create: (_)=> getIt<SearchBloc>()),
+        BlocProvider(create: (_) => getIt<SearchBloc>()),
+        BlocProvider(create: (_) => getIt<ProfileBloc>()),
       ],
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -68,13 +71,19 @@ class DashboardView extends StatelessWidget {
                               fit: BoxFit.cover,
                             ),
                           )
-                        : const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text(
-                              "Example User",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w600),
-                            ),
+                        : BlocBuilder<ProfileBloc, ProfileState>(
+                            builder: (context, state) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Text(
+                                  Formatter.capitalize(state.user?.username ??
+                                      'Example Username'),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              );
+                            },
                           ),
                   ),
             body: SafeArea(child: state.views[state.selectedIndex]),
