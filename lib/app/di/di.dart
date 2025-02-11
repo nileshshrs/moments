@@ -6,6 +6,7 @@ import 'package:moments/core/network/hive_service.dart';
 import 'package:moments/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import 'package:moments/features/auth/data/repository/user_remote_repository.dart';
 import 'package:moments/features/auth/domain/use_case/create_user_usecase.dart';
+import 'package:moments/features/auth/domain/use_case/get_all_user_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
@@ -16,6 +17,7 @@ import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart'
 import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
+import 'package:moments/features/search/view_model/search_bloc.dart';
 import 'package:moments/features/splash/presentation/view_model/splash_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,6 +38,7 @@ Future<void> initDependency() async {
   await _initSplashScreenDependencies();
 
   await _initPostDependencies();
+  await initSearchDependencies(); // Move this outside the other function
 }
 
 Future<void> _initSharedPreferences() async {
@@ -165,4 +168,27 @@ Future<void> _initPostDependencies() async {
         uploadImageUsecase: getIt<UploadImageUsecase>(),
         getPostUsecase: getIt<GetPostsUsecase>()),
   );
+}
+
+Future<void> initSearchDependencies() async {
+  if (!getIt.isRegistered<UserRemoteDatasource>()) {
+    getIt.registerFactory<UserRemoteDatasource>(
+      () => UserRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  if (!getIt.isRegistered<UserRemoteRepository>()) {
+    getIt.registerLazySingleton<UserRemoteRepository>(
+      () => UserRemoteRepository(getIt<UserRemoteDatasource>()),
+    );
+  }
+
+  getIt.registerLazySingleton<GetAllUserUsecase>(
+    () => GetAllUserUsecase(userRepository: getIt<UserRemoteRepository>()),
+  );
+
+  getIt.registerFactory<SearchBloc>(
+    () => SearchBloc(getAllUserUsecase: getIt<GetAllUserUsecase>()),
+  );
+  
 }

@@ -40,9 +40,28 @@ class UserRemoteDatasource implements IUserDataSource {
   }
 
   @override
-  Future<List<UserEntity>> getAllUsers() {
-    // TODO: implement getAllUsers
-    throw UnimplementedError();
+  Future<List<UserEntity>> getAllUsers() async {
+    try {
+      Response res =
+          await _dio.get(ApiEndpoints.getAllUsers);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        List<UserEntity> users = res.data
+            .map<UserEntity>((json) => UserModel.fromJson(json).toEntity())
+            .toList();
+        return users;
+      } else {
+        throw Exception(
+            'Failed to fetch users: ${res.statusCode} - ${res.statusMessage}');
+      }
+    } on DioException catch (e) {
+      print(
+          'DioException occurred: ${e.response?.statusCode} - ${e.response?.statusMessage}');
+      print('DioException details: ${e.toString()}');
+      throw Exception('DioException: ${e.message}');
+    } catch (e) {
+      print('Unexpected error: $e');
+      throw Exception('Unexpected error: $e');
+    }
   }
 
   @override
@@ -79,3 +98,15 @@ class UserRemoteDatasource implements IUserDataSource {
     }
   }
 }
+
+// void main() async {
+//   final Dio dio = Dio();
+//   final userRemoteDatasource = UserRemoteDatasource(dio);
+
+//   try {
+//     List<UserEntity> users = await userRemoteDatasource.getAllUsers();
+//     print('Fetched Users: $users');
+//   } catch (e) {
+//     print('Error fetching users: $e');
+//   }
+// }

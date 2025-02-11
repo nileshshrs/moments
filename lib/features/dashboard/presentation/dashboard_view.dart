@@ -5,6 +5,7 @@ import 'package:moments/features/dashboard/presentation/view_model/dashboard_cub
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
+import 'package:moments/features/search/view_model/search_bloc.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -15,6 +16,7 @@ class DashboardView extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => DashboardCubit()),
         BlocProvider(create: (_) => getIt<PostBloc>()), // Provide PostBloc here
+        BlocProvider(create: (_)=> getIt<SearchBloc>()),
       ],
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {

@@ -7,7 +7,7 @@ class ApiEndpoints {
   static const String baseUrl = "http://10.0.2.2:6278/api/v1/";
   //auth
   static const String login = "auth/mobile/sign-in";
-  static const String register = "auth/sign-up";
+  static const String register = "auth/sign-up"; 
   static const String refresh = "auth/mobile/refresh";
 
   //posts
@@ -16,5 +16,8 @@ class ApiEndpoints {
 
   // image
   static const String upload = "upload/images";
+
+  //users
+  static const String getAllUsers = "user/all";
   //add more later
 }

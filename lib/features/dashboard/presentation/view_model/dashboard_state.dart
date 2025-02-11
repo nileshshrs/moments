@@ -1,13 +1,10 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moments/app/di/di.dart';
 import 'package:moments/features/dashboard/presentation/view/account_screen.dart';
 import 'package:moments/features/dashboard/presentation/view/chat_screen.dart';
 import 'package:moments/features/dashboard/presentation/view/home_screen.dart';
 import 'package:moments/features/dashboard/presentation/view/search_screen.dart';
-import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 
 class DashboardState extends Equatable {
   final int selectedIndex;

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moments/features/auth/domain/entity/user_entity.dart';
+import 'package:moments/features/search/view_model/search_bloc.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -8,94 +11,25 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController =
-      TextEditingController(); // Controller for the search bar
+  final TextEditingController _searchController = TextEditingController();
+  List<UserEntity> users = [];
+  List<UserEntity> filteredUsers = [];
 
-  List<Map<String, String>> allUsers = [
-    {
-      'username': 'Alice',
-      'email': 'alice@email.com',
-      'image': 'https://randomuser.me/api/portraits/women/1.jpg',
-    },
-    {
-      'username': 'Bob',
-      'email': 'bob@email.com',
-      'image': 'https://randomuser.me/api/portraits/men/2.jpg',
-    },
-    {
-      'username': 'Charlie',
-      'email': 'charlie@email.com',
-      'image': 'https://randomuser.me/api/portraits/men/3.jpg',
-    },
-    {
-      'username': 'David',
-      'email': 'david@email.com',
-      'image': 'https://randomuser.me/api/portraits/men/4.jpg',
-    },
-    {
-      'username': 'Eve',
-      'email': 'eve@email.com',
-      'image': 'https://randomuser.me/api/portraits/women/5.jpg',
-    },
-    {
-      'username': 'Frank',
-      'email': 'frank@email.com',
-      'image': 'https://randomuser.me/api/portraits/men/6.jpg',
-    },
-    {
-      'username': 'Grace',
-      'email': 'grace@email.com',
-      'image': 'https://randomuser.me/api/portraits/women/7.jpg',
-    },
-    {
-      'username': 'Hannah',
-      'email': 'hannah@email.com',
-      'image': 'https://randomuser.me/api/portraits/women/8.jpg',
-    },
-    {
-      'username': 'Ivy',
-      'email': 'ivy@email.com',
-      'image': 'https://randomuser.me/api/portraits/women/9.jpg',
-    },
-    {
-      'username': 'Jack',
-      'email': 'jack@email.com',
-      'image': 'https://randomuser.me/api/portraits/men/10.jpg',
-    },
-  ];
+  bool isSearchFieldEmpty() => _searchController.text.isEmpty;
 
-  List<Map<String, String>> displayedUsers =
-      []; // Initialize with an empty list
-
-  // Filter users based on the search query (search username or email)
-  void _filterUsers(String query) {
+  void _filterUser(String query) {
     if (query.isEmpty) {
-      // If the search query is empty, do not display anything
-      setState(() {
-        displayedUsers = [];
-      });
-    } else {
-      List<Map<String, String>> filteredUsers = allUsers
-          .where((user) =>
-              user['username']!.toLowerCase().contains(query.toLowerCase()) ||
-              user['email']!.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-
-      setState(() {
-        displayedUsers = filteredUsers;
-      });
+      setState(() => filteredUsers = []);
+      return;
     }
-  }
-
-  // Clear the search field and reset the displayed users
-  void _clearSearch() {
-    _searchController.clear();
-    _filterUsers('');
-  }
-
-  // Helper function to check if the search field is empty
-  bool isSearchFieldEmpty() {
-    return _searchController.text.isEmpty;
+    setState(() {
+      filteredUsers = users.where((user) {
+        final username = user.username.toLowerCase();
+        final email = user.email.toLowerCase();
+        final searchQuery = query.toLowerCase();
+        return username.contains(searchQuery) || email.contains(searchQuery);
+      }).toList();
+    });
   }
 
   @override
@@ -104,23 +38,24 @@ class _SearchScreenState extends State<SearchScreen> {
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          // Search bar with conditional Clear button
+          // Search bar with Clear button
           SizedBox(
             height: 35,
             child: TextField(
               controller: _searchController,
-              onChanged:
-                  _filterUsers, // Call _filterUsers every time the input changes
+              onChanged: (query) {
+                _filterUser(query);
+              },
               decoration: InputDecoration(
                 hintText: 'Search by Username or Email',
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Colors.black,
-                ),
+                prefixIcon: const Icon(Icons.search, color: Colors.black),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
-                        onPressed: _clearSearch, // Clear search and reset users
+                        onPressed: () {
+                          _searchController.clear();
+                          _filterUser(""); // Clear search results
+                        },
                       )
                     : null,
                 border: OutlineInputBorder(
@@ -133,49 +68,68 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 20), // Add some spacing
+          const SizedBox(height: 20),
 
-          // Show "No recent searches" message if the search field is empty
-          if (displayedUsers.isEmpty && isSearchFieldEmpty())
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'No recent searches',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
+          // User List (Only displays if search bar is not empty)
+          Expanded(
+            child: BlocBuilder<SearchBloc, SearchState>(
+              builder: (context, state) {
+                users = state.users ?? [];
 
-          // Only display the list if there are filtered users
-          if (displayedUsers.isNotEmpty)
-            Expanded(
-              child: ListView.builder(
-                itemCount: displayedUsers.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      // You can perform an action when the user taps on a list item.
-                      // For example, navigating to a new screen:
-                      print('Tapped on ${displayedUsers[index]['username']}');
-                      // Optionally, you could navigate to a profile page:
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(user: displayedUsers[index])));
-                    },
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(displayedUsers[index]['image']!),
+                // Show "No recent searches" message if search field is empty
+                if (isSearchFieldEmpty()) {
+                  return const Center(
+                    child: Text(
+                      'No recent searches',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.black,
                       ),
-                      title: Text(displayedUsers[index]['username']!),
-                      subtitle: Text(displayedUsers[index]['email']!),
                     ),
                   );
-                },
-              ),
+                }
+
+                // Show "No users found" if search was performed but no results exist
+                if (filteredUsers.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No users found',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.black,
+                      ),
+                    ),
+                  );
+                }
+
+                // Display filtered users
+                return ListView.builder(
+                  itemCount: filteredUsers.length,
+                  itemBuilder: (context, index) {
+                    final user = filteredUsers[index];
+                    return GestureDetector(
+                      onTap: () {
+                        print('Tapped on user: ${user.username}');
+                      },
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(
+                            (user.image != null && user.image!.isNotEmpty)
+                                ? user.image![0]
+                                : 'https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg',
+                          ),
+                        ),
+                        title: Text(user.username),
+                        subtitle: Text(user.email),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
+          ),
         ],
       ),
     );

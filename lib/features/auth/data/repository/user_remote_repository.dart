@@ -26,9 +26,13 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, List<UserEntity>>> getAllUseres() {
-    // TODO: implement getAllUseres
-    throw UnimplementedError();
+  Future<Either<Failure, List<UserEntity>>> getAllUseres() async {
+    try {
+      final users = await _userRemoteDatasource.getAllUsers();
+      return Right(users);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
   }
 
   @override
