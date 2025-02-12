@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moments/app/app.dart';
@@ -12,6 +13,7 @@ void main() async {
   ]);
 
   SystemChannels.platform.invokeMethod('HapticFeedback.vibrate');
+  await Firebase.initializeApp();
   await HiveService().init();
   await initDependency();
   runApp(const App());

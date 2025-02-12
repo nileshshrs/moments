@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,12 +11,13 @@ class CreatePostBottomSheet extends StatefulWidget {
   const CreatePostBottomSheet({super.key});
 
   @override
-  _CreatePostBottomSheetState createState() => _CreatePostBottomSheetState();
+  CreatePostBottomSheetState createState() => CreatePostBottomSheetState();
 }
 
-class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
+class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
   final TextEditingController _controller = TextEditingController();
   List<File> _images = []; // List to store selected images
+  List<String> _uploadedImageUrls = [];
 
   Future<void> checkCameraPermission() async {
     if (await Permission.camera.request().isRestricted ||
@@ -27,6 +29,7 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
   void _removeImage(int index) {
     setState(() {
       _images.removeAt(index);
+      _uploadedImageUrls.removeAt(index);
     });
   }
 
@@ -36,8 +39,15 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
       if (image != null) {
         setState(() {
           _images.add(File(image.path)); // Append the image to the list
-          print('Image List: $_images'); // Print the image list to console
-          context.read<PostBloc>().add(UploadImage(files: _images));
+        });
+        final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+        final storageRef =
+            FirebaseStorage.instance.ref().child('posts/$fileName');
+        await storageRef.putFile(File(image.path));
+        final imageUrl = await storageRef.getDownloadURL();
+
+        setState(() {
+          _uploadedImageUrls.add(imageUrl);
         });
       } else {
         return;
@@ -89,7 +99,7 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                               _images = [];
                             });
                             Navigator.pop(context); // Close the modal
-                          }, 
+                          },
                         ),
                         const Text(
                           'Create post',
@@ -99,25 +109,20 @@ class _CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                       ],
                     ),
                     ElevatedButton(
-                      onPressed: _images.isNotEmpty
+                      onPressed: (_images.isNotEmpty &&
+                              _uploadedImageUrls.length == _images.length)
                           ? () async {
                               context
                                   .read<PostBloc>()
-                                  .add(CreatePost(content: _controller.text));
-
-                              // Wait for 2 seconds
-                              await Future.delayed(Duration(seconds: 2));
-
+                                  .add(CreatePost(content: _controller.text, images: _uploadedImageUrls));
                               // Clear the text controller
                               _controller.clear();
-
                               // Check if the widget is still mounted before calling setState and using context
                               if (!context.mounted) return;
-
                               setState(() {
                                 _images = [];
+                                _uploadedImageUrls = [];
                               });
-
                               Navigator.pop(context);
                             }
                           : null,

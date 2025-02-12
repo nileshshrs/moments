@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:moments/core/utils/formatter.dart';
 import 'package:moments/core/utils/time_ago_formatter.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
@@ -91,9 +92,6 @@ class HomeScreen extends StatelessWidget {
                       width: double.infinity, // Full width
                       color: Colors
                           .white, // Optional: add a translucent background
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
                     );
                   } else if (state.posts == null || state.posts!.isEmpty) {
                     return const Center(
@@ -163,18 +161,46 @@ class HomeScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               // Post Image: Use Expanded for full available height
-                              Container(
+                              SizedBox(
                                 width: double.infinity,
                                 height: MediaQuery.of(context).size.height *
                                     0.5, // 50% of screen height
-                                decoration: const BoxDecoration(
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      'https://images.pexels.com/photos/20189671/pexels-photo-20189671/free-photo-of-flowers-around-logo-board-near-building-wall.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Example image URL
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                                child: post.image.length > 1
+                                    ? FlutterCarousel(
+                                        options: FlutterCarouselOptions(
+                                          height: MediaQuery.of(context).size.height *0.5,
+                                          autoPlay:false, // Enable auto-scrolling
+                                          autoPlayInterval: Duration(seconds: 3), // Interval between slides
+                                          showIndicator: true,
+                                          viewportFraction: 1.0, // Show page indicator
+                                          slideIndicator:
+                                              CircularSlideIndicator(
+                                            slideIndicatorOptions:
+                                                SlideIndicatorOptions(
+                                              indicatorRadius: 4,
+                                              itemSpacing: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        items: post.image.map((imageUrl) {
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: NetworkImage(imageUrl),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: NetworkImage(post.image[0]),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
                               ),
                               const SizedBox(height: 8),
 

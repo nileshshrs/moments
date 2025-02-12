@@ -10,10 +10,12 @@ sealed class PostEvent extends Equatable {
 class CreatePost extends PostEvent {
   final BuildContext? context;
   final String? content;
+  final List<String> images;
 
   const CreatePost({
     this.context,
     this.content,
+    required this.images,
   });
 
   @override

@@ -99,7 +99,7 @@ void main() {
         return postBloc;
       },
       act: (bloc) {
-        bloc.add(CreatePost(content: testContent));
+        bloc.add(CreatePost(content: testContent, images: ["1", "2"]));
       },
       expect: () => [
         postBloc.state.copyWith(

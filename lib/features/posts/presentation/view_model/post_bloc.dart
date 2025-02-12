@@ -32,9 +32,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   }
   void _createPosts(CreatePost event, Emitter<PostState> emit) async {
     emit(state.copyWith(isLoading: true, isSuccess: false));
-    print(state.images);
     final result = await _createPostUsecase
-        .call(CreatePostParams(content: event.content, image: state.images!));
+        .call(CreatePostParams(content: event.content, image: event.images));
 
     result.fold(
       (failure) {
