@@ -16,10 +16,12 @@ class DashboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => DashboardCubit()),
-        BlocProvider(create: (_) => getIt<PostBloc>()), // Provide PostBloc here
-        BlocProvider(create: (_) => getIt<SearchBloc>()),
-        BlocProvider(create: (_) => getIt<ProfileBloc>()),
+        // BlocProvider(create: (_) => DashboardCubit()),
+        BlocProvider.value(
+            value: getIt<DashboardCubit>()), // Use existing instance
+        BlocProvider.value(value: getIt<PostBloc>()), // Use existing instance
+        BlocProvider.value(value: getIt<SearchBloc>()),
+        BlocProvider.value(value: getIt<ProfileBloc>()),
       ],
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -40,10 +42,14 @@ class DashboardView extends StatelessWidget {
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
-                                  useSafeArea: true,
+                                  // useSafeArea: true,
                                   isScrollControlled: true,
-                                  builder: (BuildContext context) {
-                                    return CreatePostBottomSheet();
+                                  builder: (BuildContext bottomSheetContext) {
+                                    return BlocProvider.value(
+                                      value: context.read<
+                                          PostBloc>(), // Pass down the existing PostBloc
+                                      child: CreatePostBottomSheet(),
+                                    );
                                   },
                                 );
                               },

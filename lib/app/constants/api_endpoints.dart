@@ -23,6 +23,7 @@ class ApiEndpoints {
   //account page
   static const String profile = "user/profile";
   static const String getPostsByUser = "post/getByUser";
+  static const String updateProfile = "user/update";
 
   //add more later
 }

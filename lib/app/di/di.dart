@@ -9,6 +9,7 @@ import 'package:moments/features/auth/domain/use_case/create_user_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/get_all_user_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/get_user_profile_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
+import 'package:moments/features/auth/domain/use_case/update_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
@@ -222,12 +223,18 @@ Future<void> initUserProfileDependencies() async {
       ),
     );
   }
+  if (!getIt.isRegistered<UpdateUserUsecase>()) {
+    getIt.registerLazySingleton<UpdateUserUsecase>(
+      () => UpdateUserUsecase(repository: getIt<UserRemoteRepository>()),
+    );
+  }
 
   // Register ProfileBloc with the correct Usecase
   getIt.registerFactory<ProfileBloc>(
     () => ProfileBloc(
       userProfileUsecase: getIt<GetUserProfileUsecase>(),
       getPostsByUserUsecase: getIt<GetPostsByUserUsecase>(),
+      updateUserUsecase: getIt<UpdateUserUsecase>(),
     ),
   );
 }

@@ -101,13 +101,38 @@ class UserRemoteDatasource implements IUserDataSource {
   Future<UserEntity> getUserProfile() async {
     try {
       Response res = await _dio.get(ApiEndpoints.profile);
-      print(res);
       if (res.statusCode == 200 || res.statusCode == 201) {
         UserModel userModel = UserModel.fromJson(res.data);
         return userModel.toEntity();
       } else {
         throw Exception(
             'Failed to fetch user profile: ${res.statusCode} - ${res.statusMessage}');
+      }
+    } on DioException catch (e) {
+      throw Exception(e);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<void> updateUser(UserEntity user) async {
+    try {
+      Response res = await _dio.patch(
+        ApiEndpoints.updateProfile,
+        data: {
+          "email": user.email,
+          "fullname": user.fullname,
+          "username": user.username,
+          "image": user.image, // Correctly handling List<String>
+          "bio": user.bio,
+        },
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return;
+      } else {
+        throw Exception(res.statusMessage);
       }
     } on DioException catch (e) {
       throw Exception(e);

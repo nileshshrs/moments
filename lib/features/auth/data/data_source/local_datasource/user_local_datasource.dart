@@ -58,4 +58,10 @@ class UserLocalDatasource implements IUserDataSource {
     // TODO: implement getUserProfile
     throw UnimplementedError();
   }
+  
+  @override
+  Future<void> updateUser(UserEntity user) {
+    // TODO: implement updateUser
+    throw UnimplementedError();
+  }
 }

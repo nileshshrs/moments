@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:moments/core/utils/image_picker_service.dart';
+import 'package:moments/core/utils/permission_checker.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class CreatePostBottomSheet extends StatefulWidget {
   const CreatePostBottomSheet({super.key});
@@ -16,44 +16,44 @@ class CreatePostBottomSheet extends StatefulWidget {
 
 class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
   final TextEditingController _controller = TextEditingController();
-  List<File> _images = []; // List to store selected images
+  List<File> _images = [];
   List<String> _uploadedImageUrls = [];
-
-  Future<void> checkCameraPermission() async {
-    if (await Permission.camera.request().isRestricted ||
-        await Permission.camera.request().isDenied) {
-      await Permission.camera.request();
-    }
-  }
+  final List<String> _firebasePaths = []; // Store Firebase paths for deletion
+  final ImagePickerService _imagePickerService = ImagePickerService();
 
   void _removeImage(int index) {
     setState(() {
       _images.removeAt(index);
       _uploadedImageUrls.removeAt(index);
     });
+    _imagePickerService.deleteImage(_firebasePaths[index]);
+    setState(() {
+      _firebasePaths.removeAt(index);
+    });
   }
 
-  Future _browseImage(ImageSource imageSource) async {
-    try {
-      final image = await ImagePicker().pickImage(source: imageSource);
-      if (image != null) {
-        setState(() {
-          _images.add(File(image.path)); // Append the image to the list
-        });
-        final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-        final storageRef =
-            FirebaseStorage.instance.ref().child('posts/$fileName');
-        await storageRef.putFile(File(image.path));
-        final imageUrl = await storageRef.getDownloadURL();
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await ImagePicker().pickImage(source: source);
 
-        setState(() {
-          _uploadedImageUrls.add(imageUrl);
-        });
-      } else {
-        return;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+
+      // Show image in UI immediately
+      setState(() {
+        _images.add(imageFile);
+      });
+
+      // Start background upload without calling ImagePicker again
+      _imagePickerService.uploadImageToFirebase(imageFile).then((result) {
+        if (result != null) {
+          setState(() {
+            _uploadedImageUrls.add(result["url"]); // Firebase Image URL
+            _firebasePaths.add(result["path"]); // Firebase Storage Path
+          });
+        }
+      }).catchError((error) {
+        debugPrint("Error uploading image: $error");
+      });
     }
   }
 
@@ -112,9 +112,9 @@ class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                       onPressed: (_images.isNotEmpty &&
                               _uploadedImageUrls.length == _images.length)
                           ? () async {
-                              context
-                                  .read<PostBloc>()
-                                  .add(CreatePost(content: _controller.text, images: _uploadedImageUrls));
+                              context.read<PostBloc>().add(CreatePost(
+                                  content: _controller.text,
+                                  images: _uploadedImageUrls));
                               // Clear the text controller
                               _controller.clear();
                               // Check if the widget is still mounted before calling setState and using context
@@ -377,8 +377,8 @@ class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      checkCameraPermission();
-                      _browseImage(ImageSource.camera);
+                      PermissionChecker.checkCameraPermission();
+                      _pickImage(ImageSource.camera);
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -406,7 +406,7 @@ class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                   ),
                   TextButton(
                     onPressed: () {
-                      _browseImage(ImageSource.gallery);
+                      _pickImage(ImageSource.gallery);
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 16),
