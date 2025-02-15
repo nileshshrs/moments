@@ -45,4 +45,17 @@ class SocketService {
     _socket?.disconnect();
     print('Disconnected from the server');
   }
+  void sendMessage(Map<String, dynamic> messageData) {
+    if (_socket != null && _socket!.connected) {
+      _socket!.emit("send", messageData);
+      print("Message sent via socket: $messageData");
+    } else {
+      print("Socket is not connected. Message not sent.");
+    }
+  }
+   void onMessageReceived(Function(Map<String, dynamic>) callback) {
+    _socket?.on("get", (data) {
+      callback(data);
+    });
+  }
 }

@@ -307,7 +307,8 @@ Future<void> _initConversationDependencies() async {
       getConnectionsUsecase: getIt<GetConnectionsUsecase>(),
       createConversationUsecase: getIt<CreateConversationUsecase>(),
       getMessagesUsecase: getIt<GetMessagesUsecase>(),
-      createMessageUsecase: getIt<CreateMessageUsecase>(), //  Inject CreateMessageUsecase
+      createMessageUsecase: getIt<CreateMessageUsecase>(), 
+      socketService: getIt<SocketService>()//  Inject CreateMessageUsecase
     ),
   );
 }

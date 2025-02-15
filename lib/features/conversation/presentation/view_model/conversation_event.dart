@@ -26,11 +26,11 @@ class CreateConversations extends ConversationEvent {
 }
 
 class FetchMessage extends ConversationEvent {
-  final String conversationID;
-  const FetchMessage({required this.conversationID});
+  final ConversationDto conversation;
+  const FetchMessage({required this.conversation});
 
   @override
-  List<Object> get props => [conversationID];
+  List<Object> get props => [conversation];
 }
 
 class CreateMessages extends ConversationEvent {
@@ -45,4 +45,13 @@ class CreateMessages extends ConversationEvent {
 
   @override
   List<Object> get props => [conversationID, content, recipient];
+}
+
+class ReceivedMessage extends ConversationEvent {
+  final MessageDTO newMessageData; // ✅ Ensure it's not nullable
+
+  const ReceivedMessage({required this.newMessageData});
+
+  @override
+  List<Object> get props => [newMessageData]; // ✅ Now it's List<Object> instead of List<Object?>
 }

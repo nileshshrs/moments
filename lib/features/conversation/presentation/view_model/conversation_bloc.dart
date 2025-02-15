@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/app/di/di.dart';
+import 'package:moments/core/network/socket_service.dart';
 import 'package:moments/features/conversation/data/dto/connection_dto.dart';
 import 'package:moments/features/conversation/data/dto/conversation_dto.dart';
 import 'package:moments/features/conversation/data/dto/message_dto.dart';
@@ -21,17 +22,21 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   final CreateConversationUsecase _createConversationUsecase;
   final GetMessagesUsecase _getMessagesUsecase;
   final CreateMessageUsecase _createMessageUsecase;
-  ConversationBloc({
-    required GetConversationsUsecase getConversationUsecase,
-    required GetConnectionsUsecase getConnectionsUsecase,
-    required CreateConversationUsecase createConversationUsecase,
-    required GetMessagesUsecase getMessagesUsecase,
-    required CreateMessageUsecase createMessageUsecase,
-  })  : _getConversationsUsecase = getConversationUsecase,
+  final SocketService _socketService;
+
+  ConversationBloc(
+      {required GetConversationsUsecase getConversationUsecase,
+      required GetConnectionsUsecase getConnectionsUsecase,
+      required CreateConversationUsecase createConversationUsecase,
+      required GetMessagesUsecase getMessagesUsecase,
+      required CreateMessageUsecase createMessageUsecase,
+      required SocketService socketService})
+      : _getConversationsUsecase = getConversationUsecase,
         _getConnectionsUsecase = getConnectionsUsecase,
         _createConversationUsecase = createConversationUsecase,
         _getMessagesUsecase = getMessagesUsecase,
         _createMessageUsecase = createMessageUsecase,
+        _socketService = socketService,
         super(ConversationState.initial()) {
     on<LoadConversations>(_loadConversation);
     on<LoadConnections>(_loadConnections);
@@ -40,11 +45,18 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<CreateMessages>(_createMessages);
     // add(LoadConversations());
     // add(LoadConnections());
+    on<ReceivedMessage>(_handleReceivedMessage);
+
+    _socketService.onMessageReceived((newMessageData) {
+      // print(newMessageData);
+      final newMessage = MessageDTO.fromJson(newMessageData);
+      add(ReceivedMessage(newMessageData: newMessage));
+    });
   }
 
   Future<void> _loadConversation(
       LoadConversations event, Emitter<ConversationState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isSuccess: false));
 
     final results = await _getConversationsUsecase.call();
     results.fold(
@@ -58,7 +70,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
   Future<void> _loadConnections(
       LoadConnections event, Emitter<ConversationState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isSuccess: false));
 
     final results = await _getConnectionsUsecase.call();
     results.fold(
@@ -107,7 +119,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     emit(state.copyWith(isLoading: true, isSuccess: false));
 
     final params = GetMessagesParams(
-        id: event.conversationID); // Correctly wrap the parameter
+        id: event.conversation.id!); // Correctly wrap the parameter
     final results = await _getMessagesUsecase.call(params);
 
     results.fold((failure) {
@@ -118,8 +130,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       ));
     }, (messages) {
       // print("conversation bloc $messages");
+      final reversedMessages = messages.reversed.toList();
       emit(state.copyWith(
-          isLoading: false, isSuccess: true, messages: messages));
+          isLoading: false, isSuccess: true, messages: reversedMessages, chat: event.conversation));
     });
   }
 
@@ -139,14 +152,49 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       print("failure: $failure");
     }, (newMessage) {
       // ✅ Update the messages list without reloading everything
+      _socketService.sendMessage({
+        "newMessage": {
+          "_id": newMessage.id,
+          "conversation": newMessage.conversation,
+          "sender": {
+            "_id": newMessage.sender?.id,
+            "username": newMessage.sender?.username,
+            "image": newMessage.sender?.image,
+          },
+          "recipient": {
+            "_id": newMessage.recipient?.id,
+            "username": newMessage.recipient?.username,
+            "image": newMessage.recipient?.image,
+          },
+          "content": newMessage.content,
+          "createdAt": DateTime.now().toIso8601String(),
+        }
+      });
       final updatedMessages = List<MessageDTO>.from(state.messages ?? []);
-      updatedMessages.add(newMessage); // Append new message
+      updatedMessages.insert(0, newMessage);
 
       emit(state.copyWith(
         isLoading: false,
         isSuccess: true,
-        messages: updatedMessages, // ✅ Only updating messages
+        messages: updatedMessages, // Only updating messages
       ));
     });
+  }
+
+  void _handleReceivedMessage(
+      ReceivedMessage event, Emitter<ConversationState> emit) {
+    final newMessage = event
+        .newMessageData; // ✅ No need to parse JSON since it's already a MessageDTO
+    print(state.chat?.id);
+    print(newMessage.conversation);
+
+    if (newMessage.conversation == state.chat?.id) {
+      final updatedMessages = List<MessageDTO>.from(state.messages ?? []);
+      updatedMessages.insert(0, newMessage);
+
+      emit(state.copyWith(messages: updatedMessages));
+    } else {
+      add(LoadConversations());
+    }
   }
 }

@@ -55,7 +55,7 @@ class MessageScreen extends StatelessWidget {
     // Trigger `FetchMessage` event when the screen opens
     context
         .read<ConversationBloc>()
-        .add(FetchMessage(conversationID: conversation.id!));
+        .add(FetchMessage(conversation: conversation));
 
     return Scaffold(
       appBar: AppBar(
@@ -88,6 +88,7 @@ class MessageScreen extends StatelessWidget {
                 }
 
                 return ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(12),
                   itemCount: state.messages!.length,
                   reverse: true,
