@@ -6,6 +6,7 @@ import 'package:moments/features/conversation/data/dto/connection_dto.dart';
 import 'package:moments/features/conversation/data/dto/conversation_dto.dart';
 import 'package:moments/features/conversation/data/dto/message_dto.dart';
 import 'package:moments/features/conversation/domain/use_case/create_conversation_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/create_message_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_connections_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_conversations_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_messages_usecase.dart';
@@ -19,21 +20,25 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   final GetConnectionsUsecase _getConnectionsUsecase;
   final CreateConversationUsecase _createConversationUsecase;
   final GetMessagesUsecase _getMessagesUsecase;
+  final CreateMessageUsecase _createMessageUsecase;
   ConversationBloc({
     required GetConversationsUsecase getConversationUsecase,
     required GetConnectionsUsecase getConnectionsUsecase,
     required CreateConversationUsecase createConversationUsecase,
     required GetMessagesUsecase getMessagesUsecase,
+    required CreateMessageUsecase createMessageUsecase,
   })  : _getConversationsUsecase = getConversationUsecase,
         _getConnectionsUsecase = getConnectionsUsecase,
         _createConversationUsecase = createConversationUsecase,
         _getMessagesUsecase = getMessagesUsecase,
+        _createMessageUsecase = createMessageUsecase,
         super(ConversationState.initial()) {
     on<LoadConversations>(_loadConversation);
     on<LoadConnections>(_loadConnections);
     on<CreateConversations>(_createConversation);
     on<FetchMessage>(_fetchMessage);
-    add(LoadConversations());
+    on<CreateMessages>(_createMessages);
+    // add(LoadConversations());
     // add(LoadConnections());
   }
 
@@ -115,6 +120,33 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       // print("conversation bloc $messages");
       emit(state.copyWith(
           isLoading: false, isSuccess: true, messages: messages));
+    });
+  }
+
+  Future<void> _createMessages(
+      CreateMessages event, Emitter<ConversationState> emit) async {
+    emit(state.copyWith(isSuccess: false));
+
+    final params = CreateMessageParams(
+        conversationId: event.conversationID,
+        content: event.content,
+        recipient: event.recipient);
+
+    final results = await _createMessageUsecase.call(params);
+
+    results.fold((failure) {
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+      print("failure: $failure");
+    }, (newMessage) {
+      // ✅ Update the messages list without reloading everything
+      final updatedMessages = List<MessageDTO>.from(state.messages ?? []);
+      updatedMessages.add(newMessage); // Append new message
+
+      emit(state.copyWith(
+        isLoading: false,
+        isSuccess: true,
+        messages: updatedMessages, // ✅ Only updating messages
+      ));
     });
   }
 }

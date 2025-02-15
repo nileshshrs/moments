@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/app/di/di.dart';
 import 'package:moments/app/widgets/flushbar_utils.dart';
+import 'package:moments/core/network/socket_service.dart';
 import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
 import 'package:moments/features/dashboard/presentation/dashboard_view.dart';
@@ -84,6 +85,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         (token) {
           // On success, update state and navigate
           emit(state.copyWith(isLoading: false, isSuccess: true));
+          final socketService = getIt<SocketService>();
+          socketService.connect();
+
           add(NavigateHomeScreenEvent(
             context: event.context,
             destination: DashboardView(),

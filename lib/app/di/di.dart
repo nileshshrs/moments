@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moments/app/shared_prefs/shared_prefs.dart';
 import 'package:moments/core/network/api_service.dart';
 import 'package:moments/core/network/hive_service.dart';
+import 'package:moments/core/network/socket_service.dart';
 import 'package:moments/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import 'package:moments/features/auth/data/repository/user_remote_repository.dart';
 import 'package:moments/features/auth/domain/use_case/create_user_usecase.dart';
@@ -17,6 +18,7 @@ import 'package:moments/features/conversation/data/data_source/remote_datasource
 import 'package:moments/features/conversation/data/repository/conversation_remote_repository.dart';
 import 'package:moments/features/conversation/data/repository/message_remote_repository.dart';
 import 'package:moments/features/conversation/domain/use_case/create_conversation_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/create_message_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_connections_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_conversations_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_messages_usecase.dart';
@@ -40,6 +42,7 @@ Future<void> initDependency() async {
   await _initApiService();
   await _initHiveDependencies();
   await _initSharedPreferences();
+  await _initSocketService();
   // Initialize home dependencies first
   await _initHomeDependencies();
 
@@ -72,6 +75,10 @@ _initApiService() {
       Dio(), // Pass SharedPrefs to ApiService
     ).dio,
   );
+}
+
+Future<void> _initSocketService() async {
+  getIt.registerLazySingleton<SocketService>(() => SocketService());
 }
 
 Future<void> _initHomeDependencies() async {
@@ -249,9 +256,8 @@ Future<void> initUserProfileDependencies() async {
   );
 }
 
-
 Future<void> _initConversationDependencies() async {
-  // ✅ Register Conversation Dependencies
+  //  Register Conversation Dependencies
   if (!getIt.isRegistered<ConversationRemoteDatasource>()) {
     getIt.registerLazySingleton<ConversationRemoteDatasource>(
       () => ConversationRemoteDatasource(getIt<Dio>()),
@@ -289,14 +295,19 @@ Future<void> _initConversationDependencies() async {
     () => GetMessagesUsecase(getIt<MessageRemoteRepository>()),
   );
 
-  // Register ConversationBloc with message fetching support
+  //  Register `CreateMessageUsecase` to ensure `.call(params)` works
+  getIt.registerLazySingleton<CreateMessageUsecase>(
+    () => CreateMessageUsecase(getIt<MessageRemoteRepository>()),
+  );
+
+  //  Register ConversationBloc with message fetching & message creation support
   getIt.registerFactory<ConversationBloc>(
     () => ConversationBloc(
       getConversationUsecase: getIt<GetConversationsUsecase>(),
       getConnectionsUsecase: getIt<GetConnectionsUsecase>(),
       createConversationUsecase: getIt<CreateConversationUsecase>(),
-      getMessagesUsecase: getIt<GetMessagesUsecase>(), //Inject GetMessagesUsecase
+      getMessagesUsecase: getIt<GetMessagesUsecase>(),
+      createMessageUsecase: getIt<CreateMessageUsecase>(), //  Inject CreateMessageUsecase
     ),
   );
 }
-

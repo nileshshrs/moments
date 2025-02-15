@@ -17,13 +17,27 @@ class MessageScreen extends StatelessWidget {
     final String messageText = _messageController.text.trim();
     if (messageText.isEmpty) return;
 
-    //  Dispatch event to send message
-    // context.read<ConversationBloc>().add(SendMessage(
-    //       conversationID: conversation.id!,
-    //       content: messageText,
-    //     ));
+    final sharedPreferences = getIt<SharedPreferences>();
+    final String currentUserId = sharedPreferences.getString('userID') ?? "";
 
-    //  Clear input field after sending
+    // Identify the receiver (the other participant)
+    final receiver = conversation.participants?.firstWhere(
+      (participant) => participant.id != currentUserId,
+      orElse: () => conversation.participants!.first,
+    );
+
+    if (receiver == null || receiver.id == null) {
+      print("Error: Receiver ID is null");
+      return;
+    }
+
+    context.read<ConversationBloc>().add(CreateMessages(
+          conversationID: conversation.id!,
+          content: messageText,
+          recipient: receiver.id!, // Fixed recipient.id issue
+        ));
+
+    // Clear input field after sending
     _messageController.clear();
   }
 
@@ -47,7 +61,7 @@ class MessageScreen extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false, // Removes default back button
         leading: IconButton(
-          //  Custom back button
+          // Custom back button
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -61,7 +75,7 @@ class MessageScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          //  Chat Messages
+          // Chat Messages
           Expanded(
             child: BlocBuilder<ConversationBloc, ConversationState>(
               builder: (context, state) {
@@ -76,13 +90,14 @@ class MessageScreen extends StatelessWidget {
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: state.messages!.length,
+                  reverse: true,
                   itemBuilder: (context, index) {
                     final MessageDTO message = state.messages![index];
 
-                    //  Check if the **current user** is the sender or recipient
+                    // Check if the current user is the sender or recipient
                     final bool isMe = message.sender?.id == currentUserId;
 
-                    //  Assign images correctly for sender & recipient
+                    // Assign images correctly for sender & recipient
                     final String myImage = isMe
                         ? message.sender!.image!.first
                         : message.recipient!.image!.first;
@@ -93,12 +108,12 @@ class MessageScreen extends StatelessWidget {
 
                     return Row(
                       crossAxisAlignment:
-                          CrossAxisAlignment.end, //  Keep images at bottom
+                          CrossAxisAlignment.end, // Keep images at bottom
                       mainAxisAlignment: isMe
                           ? MainAxisAlignment.end
                           : MainAxisAlignment.start,
                       children: [
-                        //  Recipient Image (Left Side)
+                        // Recipient Image (Left Side)
                         if (!isMe)
                           Padding(
                             padding: const EdgeInsets.only(right: 6),
@@ -108,7 +123,7 @@ class MessageScreen extends StatelessWidget {
                             ),
                           ),
 
-                        //  Message Bubble
+                        // Message Bubble
                         Flexible(
                           child: Container(
                             padding: const EdgeInsets.all(10),
@@ -128,7 +143,7 @@ class MessageScreen extends StatelessWidget {
                           ),
                         ),
 
-                        //  Sender Image (Right Side)
+                        // Sender Image (Right Side)
                         if (isMe)
                           Padding(
                             padding: const EdgeInsets.only(left: 6),
@@ -145,15 +160,15 @@ class MessageScreen extends StatelessWidget {
             ),
           ),
 
-          //  Input Field & Send Button
+          // Input Field & Send Button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
             child: Row(
               children: [
-                //  Text Input (Fixed Height)
+                // Text Input (Fixed Height)
                 Expanded(
                   child: SizedBox(
-                    height: 40, //  Fixed height
+                    height: 40, // Fixed height
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
@@ -170,9 +185,9 @@ class MessageScreen extends StatelessWidget {
 
                 const SizedBox(width: 8),
 
-                //  Send Button (Same Height as TextField)
+                // Send Button (Same Height as TextField)
                 SizedBox(
-                  height: 40, //  Matches text field height
+                  height: 40, // Matches text field height
                   child: TextButton(
                     onPressed: () => _sendMessage(context),
                     style: TextButton.styleFrom(

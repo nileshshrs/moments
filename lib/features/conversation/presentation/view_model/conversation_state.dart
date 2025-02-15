@@ -7,13 +7,16 @@ class ConversationState extends Equatable {
   final List<ConnectionDTO>? connections;
   final ConversationDto? chat; // Single conversation DTO
   final List<MessageDTO>? messages;
+  final MessageDTO? message; // Made nullable
+
   const ConversationState({
     required this.isLoading,
     required this.isSuccess,
     this.conversation,
     this.connections,
-    this.chat, // ✅ Included in constructor
+    this.chat,
     this.messages,
+    this.message,
   });
 
   // Initial state
@@ -23,8 +26,9 @@ class ConversationState extends Equatable {
       isSuccess: false,
       conversation: [],
       connections: [],
-      chat: null, // ✅ Fixed missing chat
-      messages: []
+      chat: null,
+      messages: [],
+      message: null, // Fixed missing message
     );
   }
 
@@ -34,20 +38,29 @@ class ConversationState extends Equatable {
     bool? isSuccess,
     List<ConversationDto>? conversation,
     List<ConnectionDTO>? connections,
-    ConversationDto? chat, // ✅ Include chat in copyWith
+    ConversationDto? chat,
     List<MessageDTO>? messages,
+    MessageDTO? message, // Made nullable
   }) {
     return ConversationState(
       isLoading: isLoading ?? this.isLoading,
       isSuccess: isSuccess ?? this.isSuccess,
       conversation: conversation ?? this.conversation,
       connections: connections ?? this.connections,
-      chat: chat ?? this.chat, // ✅ Ensure chat gets updated properly
-      messages: messages?? this.messages
+      chat: chat ?? this.chat,
+      messages: messages ?? this.messages,
+      message: message ?? this.message, // Fixed missing comma
     );
   }
 
   @override
-  List<Object?> get props =>
-      [isLoading, isSuccess, conversation, connections, chat, messages];
+  List<Object?> get props => [
+        isLoading,
+        isSuccess,
+        conversation,
+        connections,
+        chat,
+        messages,
+        message,
+      ];
 }

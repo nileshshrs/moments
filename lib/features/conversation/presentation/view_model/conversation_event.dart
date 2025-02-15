@@ -32,3 +32,17 @@ class FetchMessage extends ConversationEvent {
   @override
   List<Object> get props => [conversationID];
 }
+
+class CreateMessages extends ConversationEvent {
+  final String conversationID;
+  final String content;
+  final String recipient;
+
+  const CreateMessages(
+      {required this.conversationID,
+      required this.content,
+      required this.recipient});
+
+  @override
+  List<Object> get props => [conversationID, content, recipient];
+}

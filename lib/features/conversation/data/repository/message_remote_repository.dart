@@ -17,4 +17,16 @@ class MessageRemoteRepository implements IMessageRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, MessageDTO>> createMessages(
+      String id, MessageEntity messageEntity) async {
+    try {
+      final createdMessage =
+          await _messageRemoteDatasource.createMessages(id, messageEntity);
+      return Right(createdMessage);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
 }
