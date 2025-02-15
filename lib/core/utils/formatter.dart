@@ -25,4 +25,11 @@ class Formatter {
       return "${createdAt.day}/${createdAt.month}/${createdAt.year}"; // Show full date if over 30 days
     }
   }
+
+  /// Shortens text if it's longer than `maxLength`, adding "..."
+  static String shortenText(String text, {int maxLength = 30}) {
+    return text.length > maxLength
+        ? "${text.substring(0, maxLength)}..."
+        : text;
+  }
 }

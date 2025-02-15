@@ -25,5 +25,13 @@ class ApiEndpoints {
   static const String getPostsByUser = "post/getByUser";
   static const String updateProfile = "user/update";
 
+  //conversation page
+  static const String getConversation = "conversation/get";
+  static const String createConversation = "conversation/mobile/create";
+  static const String connections = "follow/connections";
+
+  //message page
+  static const String fetchMessages = "messages/conversation/get/";
+
   //add more later
 }

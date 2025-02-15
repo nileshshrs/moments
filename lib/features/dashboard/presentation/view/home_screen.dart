@@ -142,7 +142,7 @@ class HomeScreen extends StatelessWidget {
                                       children: [
                                         Text(
                                           Formatter.capitalize(
-                                              post.user.username ?? 'username'),
+                                              post.user.username),
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),

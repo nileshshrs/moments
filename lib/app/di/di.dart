@@ -12,6 +12,15 @@ import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:moments/features/auth/domain/use_case/update_user_usecase.dart';
 import 'package:moments/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:moments/features/auth/presentation/view_model/registration/register_bloc.dart';
+import 'package:moments/features/conversation/data/data_source/remote_datasource/conversation_remote_datasource.dart';
+import 'package:moments/features/conversation/data/data_source/remote_datasource/message_remote_datasource.dart';
+import 'package:moments/features/conversation/data/repository/conversation_remote_repository.dart';
+import 'package:moments/features/conversation/data/repository/message_remote_repository.dart';
+import 'package:moments/features/conversation/domain/use_case/create_conversation_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/get_connections_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/get_conversations_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/get_messages_usecase.dart';
+import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
@@ -44,6 +53,7 @@ Future<void> initDependency() async {
   await _initPostDependencies();
   await initSearchDependencies(); // Move this outside the other function
   await initUserProfileDependencies();
+  await _initConversationDependencies();
 }
 
 Future<void> _initSharedPreferences() async {
@@ -82,7 +92,7 @@ Future<void> _initRegisterDependencies() async {
 
   //remote data source
   if (!getIt.isRegistered<UserRemoteDatasource>()) {
-    getIt.registerFactory<UserRemoteDatasource>(
+    getIt.registerLazySingleton<UserRemoteDatasource>(
       () => UserRemoteDatasource(getIt<Dio>()),
     );
   }
@@ -144,7 +154,7 @@ Future<void> _initSplashScreenDependencies() async {
 Future<void> _initPostDependencies() async {
   // Register remote data source
   if (!getIt.isRegistered<PostRemoteDatasource>()) {
-    getIt.registerFactory<PostRemoteDatasource>(
+    getIt.registerLazySingleton<PostRemoteDatasource>(
       () => PostRemoteDatasource(getIt<Dio>()),
     );
   }
@@ -183,7 +193,7 @@ Future<void> _initPostDependencies() async {
 
 Future<void> initSearchDependencies() async {
   if (!getIt.isRegistered<UserRemoteDatasource>()) {
-    getIt.registerFactory<UserRemoteDatasource>(
+    getIt.registerLazySingleton<UserRemoteDatasource>(
       () => UserRemoteDatasource(getIt<Dio>()),
     );
   }
@@ -205,7 +215,7 @@ Future<void> initSearchDependencies() async {
 
 Future<void> initUserProfileDependencies() async {
   if (!getIt.isRegistered<UserRemoteDatasource>()) {
-    getIt.registerFactory<UserRemoteDatasource>(
+    getIt.registerLazySingleton<UserRemoteDatasource>(
       () => UserRemoteDatasource(getIt<Dio>()),
     );
   }
@@ -238,3 +248,55 @@ Future<void> initUserProfileDependencies() async {
     ),
   );
 }
+
+
+Future<void> _initConversationDependencies() async {
+  // ✅ Register Conversation Dependencies
+  if (!getIt.isRegistered<ConversationRemoteDatasource>()) {
+    getIt.registerLazySingleton<ConversationRemoteDatasource>(
+      () => ConversationRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  getIt.registerLazySingleton<ConversationRemoteRepository>(
+    () => ConversationRemoteRepository(getIt<ConversationRemoteDatasource>()),
+  );
+
+  getIt.registerLazySingleton<GetConversationsUsecase>(
+    () => GetConversationsUsecase(repository: getIt<ConversationRemoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetConnectionsUsecase>(
+    () => GetConnectionsUsecase(repository: getIt<ConversationRemoteRepository>()),
+  );
+
+  getIt.registerLazySingleton<CreateConversationUsecase>(
+    () => CreateConversationUsecase(getIt<ConversationRemoteRepository>()),
+  );
+
+  //  Register Message Dependencies
+  if (!getIt.isRegistered<MessageRemoteDatasource>()) {
+    getIt.registerLazySingleton<MessageRemoteDatasource>(
+      () => MessageRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  getIt.registerLazySingleton<MessageRemoteRepository>(
+    () => MessageRemoteRepository(getIt<MessageRemoteDatasource>()),
+  );
+
+  getIt.registerLazySingleton<GetMessagesUsecase>(
+    () => GetMessagesUsecase(getIt<MessageRemoteRepository>()),
+  );
+
+  // Register ConversationBloc with message fetching support
+  getIt.registerFactory<ConversationBloc>(
+    () => ConversationBloc(
+      getConversationUsecase: getIt<GetConversationsUsecase>(),
+      getConnectionsUsecase: getIt<GetConnectionsUsecase>(),
+      createConversationUsecase: getIt<CreateConversationUsecase>(),
+      getMessagesUsecase: getIt<GetMessagesUsecase>(), //Inject GetMessagesUsecase
+    ),
+  );
+}
+

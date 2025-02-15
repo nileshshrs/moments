@@ -8,8 +8,8 @@ ThemeData getApplicationTheme() {
       // AppBar Theme
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
-        elevation: 2,
-        shadowColor: Colors.grey,
+        elevation: 0,
+        // shadowColor: Colors.grey,
       ),
 
       // Elevated Button Theme

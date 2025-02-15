@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/app/di/di.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/conversation/presentation/view/create_conversation.dart';
+import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
@@ -22,6 +24,7 @@ class DashboardView extends StatelessWidget {
         BlocProvider.value(value: getIt<PostBloc>()), // Use existing instance
         BlocProvider.value(value: getIt<SearchBloc>()),
         BlocProvider.value(value: getIt<ProfileBloc>()),
+        BlocProvider.value(value: getIt<ConversationBloc>()),
       ],
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -61,7 +64,19 @@ class DashboardView extends StatelessWidget {
                                   icon: const Icon(Icons.edit_square,
                                       color: Colors.black),
                                   onPressed: () {
-                                    print("Create message button pressed");
+                                    showModalBottomSheet(
+                                      context: context,
+                                      // useSafeArea: true,
+                                      isScrollControlled: true,
+                                      builder: (BuildContext
+                                          conversationBottomSheetContext) {
+                                        return BlocProvider.value(
+                                          value: context.read<
+                                              ConversationBloc>(), // Pass down the existing PostBloc
+                                          child: CreateConversation(),
+                                        );
+                                      },
+                                    );
                                   },
                                 ),
                               ]
