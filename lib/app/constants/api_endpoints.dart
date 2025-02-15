@@ -29,6 +29,7 @@ class ApiEndpoints {
   static const String getConversation = "conversation/get";
   static const String createConversation = "conversation/mobile/create";
   static const String connections = "follow/connections";
+  static const String updateConversation = "conversation/update";
 
   //message page
   static const String fetchMessages = "messages/conversation/get/";

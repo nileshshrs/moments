@@ -72,4 +72,24 @@ class ConversationRemoteDatasource implements IConversationDataSource {
       throw Exception("Unexpected error: $e");
     }
   }
+
+  @override
+  Future<void> updateConversation(String id) async {
+    try {
+      Response res = await _dio.get(
+        "${ApiEndpoints.updateConversation}/$id",
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return;
+      } else {
+        throw Exception(
+            "Failed to create message: ${res.statusCode} ${res.statusMessage}");
+      }
+    } on DioException catch (e) {
+      throw Exception("DioException: ${e.response?.data ?? e.message}");
+    } catch (e) {
+      throw Exception("Unexpected error: $e");
+    }
+  }
 }

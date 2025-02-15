@@ -53,5 +53,14 @@ class ReceivedMessage extends ConversationEvent {
   const ReceivedMessage({required this.newMessageData});
 
   @override
-  List<Object> get props => [newMessageData]; // ✅ Now it's List<Object> instead of List<Object?>
+  List<Object> get props =>
+      [newMessageData]; // ✅ Now it's List<Object> instead of List<Object?>
+}
+
+class UpdateConversation extends ConversationEvent {
+  final String id;
+  const UpdateConversation({required this.id});
+
+  @override
+  List<Object> get props => [id];
 }

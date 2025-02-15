@@ -7,5 +7,7 @@ import 'package:moments/features/conversation/domain/entity/conversation_entity.
 abstract interface class IConversationRepository {
   Future<Either<Failure, List<ConversationDto>>> getConversation();
   Future<Either<Failure, List<ConnectionDTO>>> getConnections();
-  Future<Either<Failure, ConversationDto>> createConversations(ConversationEntity entity);
+  Future<Either<Failure, ConversationDto>> createConversations(
+      ConversationEntity entity);
+  Future<Either<Failure, void>> updateConversation(String id);
 }

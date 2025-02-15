@@ -11,6 +11,7 @@ import 'package:moments/features/conversation/domain/use_case/create_message_use
 import 'package:moments/features/conversation/domain/use_case/get_connections_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_conversations_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_messages_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/update_conversation_usecase.dart';
 import 'package:moments/features/conversation/presentation/view/message_screen.dart';
 
 part 'conversation_event.dart';
@@ -23,6 +24,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   final GetMessagesUsecase _getMessagesUsecase;
   final CreateMessageUsecase _createMessageUsecase;
   final SocketService _socketService;
+  final UpdateConversationUsecase _updateConversationUsecase;
 
   ConversationBloc(
       {required GetConversationsUsecase getConversationUsecase,
@@ -30,19 +32,22 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       required CreateConversationUsecase createConversationUsecase,
       required GetMessagesUsecase getMessagesUsecase,
       required CreateMessageUsecase createMessageUsecase,
-      required SocketService socketService})
+      required SocketService socketService,
+      required UpdateConversationUsecase updateConversationUsecase})
       : _getConversationsUsecase = getConversationUsecase,
         _getConnectionsUsecase = getConnectionsUsecase,
         _createConversationUsecase = createConversationUsecase,
         _getMessagesUsecase = getMessagesUsecase,
         _createMessageUsecase = createMessageUsecase,
         _socketService = socketService,
+        _updateConversationUsecase = updateConversationUsecase,
         super(ConversationState.initial()) {
     on<LoadConversations>(_loadConversation);
     on<LoadConnections>(_loadConnections);
     on<CreateConversations>(_createConversation);
     on<FetchMessage>(_fetchMessage);
     on<CreateMessages>(_createMessages);
+    on<UpdateConversation>(_updateConversation);
     // add(LoadConversations());
     // add(LoadConnections());
     on<ReceivedMessage>(_handleReceivedMessage);
@@ -132,7 +137,10 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       // print("conversation bloc $messages");
       final reversedMessages = messages.reversed.toList();
       emit(state.copyWith(
-          isLoading: false, isSuccess: true, messages: reversedMessages, chat: event.conversation));
+          isLoading: false,
+          isSuccess: true,
+          messages: reversedMessages,
+          chat: event.conversation));
     });
   }
 
@@ -196,5 +204,25 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     } else {
       add(LoadConversations());
     }
+  }
+
+  Future<void> _updateConversation(
+      UpdateConversation event, Emitter<ConversationState> emit) async {
+    emit(state.copyWith(isSuccess: false));
+
+    final params = UpdateConversationParams(id: event.id);
+    final results = await _updateConversationUsecase.call(params);
+
+    results.fold(
+      (failure) {
+        print('failure $failure');
+        emit(state.copyWith(isLoading: false, isSuccess: false));
+      },
+      (_) {
+        // `_` represents void (success case)
+        add(LoadConversations());
+        emit(state.copyWith(isSuccess: true));
+      },
+    );
   }
 }

@@ -17,32 +17,31 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<ConversationDto> displayedConversations = [];
+  List<ConversationDto> allConversations = []; // Store all conversations
   String currentUserId = "";
-  late ConversationBloc conversationBloc; // Store ConversationBloc reference
+  late ConversationBloc conversationBloc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    conversationBloc = context
-        .read<ConversationBloc>(); //Get Bloc once in a safe lifecycle method
+    conversationBloc = context.read<ConversationBloc>();
     _fetchUserID();
-    conversationBloc.add(LoadConversations()); //Fetch conversations
+    conversationBloc.add(LoadConversations());
   }
 
   Future<void> _fetchUserID() async {
-    final sharedPreferences =
-        getIt<SharedPreferences>(); // Accessing SharedPreferences using getIt
+    final sharedPreferences = getIt<SharedPreferences>();
     setState(() {
       currentUserId = sharedPreferences.getString('userID') ?? "";
     });
   }
 
-  void _filterConversations(String query, List<ConversationDto> conversations) {
+  void _filterConversations(String query) {
     setState(() {
       if (query.isEmpty) {
-        displayedConversations = conversations;
+        displayedConversations = List.from(allConversations);
       } else {
-        displayedConversations = conversations
+        displayedConversations = allConversations
             .where((conversation) =>
                 conversation.participants?.any((participant) =>
                     participant.username
@@ -58,110 +57,134 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         children: [
           // Search bar
-          SizedBox(
-            height: 40,
-            child: TextField(
-              controller: _searchController,
-              onChanged: (query) {
-                final state = conversationBloc.state;
-                _filterConversations(query, state.conversation ?? []);
-              },
-              decoration: InputDecoration(
-                hintText: 'Search by Username',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                            final state = conversationBloc.state;
-                            displayedConversations = state.conversation ?? [];
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (query) {
+                  _filterConversations(query);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Search by Username',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              _filterConversations("");
+                            });
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 20), // Space between search bar and list
-          const SizedBox(
-            width: double.infinity,
-            child: Text(
-              "Messages",
-              style: TextStyle(
-                  color: Color(0xFF63C57A), fontWeight: FontWeight.bold),
+          const SizedBox(height: 20),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: const SizedBox(
+              width: double.infinity,
+              child: Text(
+                "Messages",
+                style: TextStyle(
+                    color: Color(0xFF63C57A), fontWeight: FontWeight.bold),
+              ),
             ),
           ),
+          const SizedBox(height: 10),
 
-          // BlocListener to listen for conversation updates
+          // BlocListener to update conversations when fetched
           BlocListener<ConversationBloc, ConversationState>(
             listenWhen: (previous, current) =>
                 previous.conversation != current.conversation,
             listener: (context, state) {
               setState(() {
-                displayedConversations = state.conversation ?? [];
+                allConversations = state.conversation ?? [];
+                displayedConversations = List.from(allConversations);
               });
             },
             child: Expanded(
               child: BlocBuilder<ConversationBloc, ConversationState>(
                 builder: (context, state) {
                   if (state.isLoading) {
-                    return const SizedBox.shrink(); // Show loading indicator
+                    return const SizedBox.shrink();
                   }
                   if (state.conversation == null ||
                       state.conversation!.isEmpty) {
                     return const Center(child: Text("No conversations found"));
                   }
 
-                  displayedConversations = state.conversation!;
-
                   return ListView.builder(
                     itemCount: displayedConversations.length,
                     itemBuilder: (context, index) {
                       final conversation = displayedConversations[index];
 
-                      // Find the participant who is NOT the logged-in user
                       final otherParticipant =
                           conversation.participants?.firstWhere(
                         (participant) => participant.id != currentUserId,
-                        orElse: () => conversation.participants!
-                            .first, // Fallback if only one user exists
+                        orElse: () => conversation.participants!.first,
                       );
+
+                      // ✅ Unread message logic remains the same
+                      final bool isUnread = conversation.read == currentUserId;
 
                       return GestureDetector(
                         onTap: () async {
+                          conversationBloc
+                              .add(UpdateConversation(id: conversation.id!));
                           await Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => BlocProvider.value(
-                                value:
-                                    conversationBloc, //  Use stored reference instead of accessing context again
+                                value: conversationBloc,
                                 child:
                                     MessageScreen(conversation: conversation),
                               ),
                             ),
                           );
 
-                          // Ensure ChatScreen refreshes when returning from MessageScreen
                           conversationBloc.add(LoadConversations());
                         },
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                otherParticipant?.image?.isNotEmpty == true
-                                    ? otherParticipant!.image![0]
-                                    : "https://via.placeholder.com/150"),
+                        child: Container(
+                          color:
+                              isUnread ? Colors.grey[200] : Colors.transparent,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  otherParticipant?.image?.isNotEmpty == true
+                                      ? otherParticipant!.image![0]
+                                      : "https://via.placeholder.com/150"),
+                            ),
+                            title: Text(
+                              Formatter.capitalize(
+                                  otherParticipant?.username ?? "Unknown"),
+                              style: const TextStyle(
+                                  fontWeight:
+                                      FontWeight.bold), // **Bold usernames**
+                            ),
+                            subtitle: Text(
+                              Formatter.shortenText(conversation.lastMessage ??
+                                  "No messages yet"),
+                              style: TextStyle(
+                                fontWeight: isUnread
+                                    ? FontWeight.w600
+                                    : FontWeight
+                                        .normal, // **Semi-bold unread messages**
+                              ),
+                            ),
                           ),
-                          title: Text(otherParticipant?.username ?? "Unknown"),
-                          subtitle: Text(Formatter.shortenText(
-                              conversation.lastMessage ?? "No messages yet")),
                         ),
                       );
                     },

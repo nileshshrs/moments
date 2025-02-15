@@ -22,6 +22,7 @@ import 'package:moments/features/conversation/domain/use_case/create_message_use
 import 'package:moments/features/conversation/domain/use_case/get_connections_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_conversations_usecase.dart';
 import 'package:moments/features/conversation/domain/use_case/get_messages_usecase.dart';
+import 'package:moments/features/conversation/domain/use_case/update_conversation_usecase.dart';
 import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
@@ -280,6 +281,11 @@ Future<void> _initConversationDependencies() async {
     () => CreateConversationUsecase(getIt<ConversationRemoteRepository>()),
   );
 
+  // ✅ Register UpdateConversationUsecase
+  getIt.registerLazySingleton<UpdateConversationUsecase>(
+    () => UpdateConversationUsecase(getIt<ConversationRemoteRepository>()),
+  );
+
   //  Register Message Dependencies
   if (!getIt.isRegistered<MessageRemoteDatasource>()) {
     getIt.registerLazySingleton<MessageRemoteDatasource>(
@@ -300,15 +306,17 @@ Future<void> _initConversationDependencies() async {
     () => CreateMessageUsecase(getIt<MessageRemoteRepository>()),
   );
 
-  //  Register ConversationBloc with message fetching & message creation support
+  //  Register ConversationBloc with message fetching, creation & update support
   getIt.registerFactory<ConversationBloc>(
     () => ConversationBloc(
       getConversationUsecase: getIt<GetConversationsUsecase>(),
       getConnectionsUsecase: getIt<GetConnectionsUsecase>(),
       createConversationUsecase: getIt<CreateConversationUsecase>(),
       getMessagesUsecase: getIt<GetMessagesUsecase>(),
-      createMessageUsecase: getIt<CreateMessageUsecase>(), 
-      socketService: getIt<SocketService>()//  Inject CreateMessageUsecase
+      createMessageUsecase: getIt<CreateMessageUsecase>(),
+      updateConversationUsecase: getIt<UpdateConversationUsecase>(), // ✅ Injected Here
+      socketService: getIt<SocketService>(),
     ),
   );
 }
+

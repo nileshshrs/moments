@@ -43,4 +43,14 @@ class ConversationRemoteRepository implements IConversationRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateConversation(String id) async {
+    try {
+      await _conversationRemoteDatasource.updateConversation(id);
+      return Right(null);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
 }

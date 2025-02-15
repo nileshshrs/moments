@@ -31,32 +31,34 @@ class MessageRemoteDatasource implements IMessageDataSource {
     }
   }
 
-@override
-Future<MessageDTO> createMessages(String id, MessageEntity messageEntity) async {
-  try {
-    Response res = await _dio.post(
-      "${ApiEndpoints.createMessages}/$id",
-      data: {
-        "recipient": messageEntity.recipient,
-        "content": messageEntity.content
-      },
-    );
+  @override
+  Future<MessageDTO> createMessages(
+      String id, MessageEntity messageEntity) async {
+    try {
+      Response res = await _dio.post(
+        "${ApiEndpoints.createMessages}/$id",
+        data: {
+          "recipient": messageEntity.recipient,
+          "content": messageEntity.content
+        },
+      );
 
-    if (res.statusCode == 200 || res.statusCode == 201) {
-      final data = res.data;
-      if (data != null && data.containsKey("newMessage")) {
-        return MessageDTO.fromJson(data["newMessage"]); // ✅ Extracting correctly
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final data = res.data;
+        if (data != null && data.containsKey("newMessage")) {
+          return MessageDTO.fromJson(
+              data["newMessage"]); // ✅ Extracting correctly
+        } else {
+          throw Exception("Invalid response: 'newMessage' key not found");
+        }
       } else {
-        throw Exception("Invalid response: 'newMessage' key not found");
+        throw Exception(
+            "Failed to create message: ${res.statusCode} ${res.statusMessage}");
       }
-    } else {
-      throw Exception(
-          "Failed to create message: ${res.statusCode} ${res.statusMessage}");
+    } on DioException catch (e) {
+      throw Exception("DioException: ${e.response?.data ?? e.message}");
+    } catch (e) {
+      throw Exception("Unexpected error: $e");
     }
-  } on DioException catch (e) {
-    throw Exception("DioException: ${e.response?.data ?? e.message}");
-  } catch (e) {
-    throw Exception("Unexpected error: $e");
   }
-}
 }

@@ -6,4 +6,5 @@ abstract interface class IConversationDataSource {
   Future<ConversationDto> createConversation(ConversationEntity entity);
   Future<List<ConversationDto>> getConversation();
   Future<List<ConnectionDTO>> getConnections();
+  Future<void> updateConversation(String id);
 }
