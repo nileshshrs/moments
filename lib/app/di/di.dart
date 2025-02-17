@@ -25,6 +25,10 @@ import 'package:moments/features/conversation/domain/use_case/get_messages_useca
 import 'package:moments/features/conversation/domain/use_case/update_conversation_usecase.dart';
 import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
+import 'package:moments/features/interactions/data/data_source/remote_data/like_remote_datasource.dart';
+import 'package:moments/features/interactions/data/repository/like_remote_repository.dart';
+import 'package:moments/features/interactions/domain/usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
@@ -59,6 +63,7 @@ Future<void> initDependency() async {
   await initSearchDependencies(); // Move this outside the other function
   await initUserProfileDependencies();
   await _initConversationDependencies();
+  await _initInteractionsDependencies();
 }
 
 Future<void> _initSharedPreferences() async {
@@ -328,6 +333,30 @@ Future<void> _initConversationDependencies() async {
       updateConversationUsecase:
           getIt<UpdateConversationUsecase>(), // ✅ Injected Here
       socketService: getIt<SocketService>(),
+    ),
+  );
+}
+
+Future<void> _initInteractionsDependencies() async {
+  if (!getIt.isRegistered<LikeRemoteDatasource>()) {
+    getIt.registerLazySingleton<LikeRemoteDatasource>(
+      () => LikeRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  getIt.registerLazySingleton<LikeRemoteRepository>(
+    () => LikeRemoteRepository(getIt<LikeRemoteDatasource>()),
+  );
+
+  getIt.registerLazySingleton<ToggleLikeUsecase>(
+    () => ToggleLikeUsecase(
+      getIt<LikeRemoteRepository>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => InteractionsBloc(
+      toggleLikeUsecase: getIt<ToggleLikeUsecase>(),
     ),
   );
 }

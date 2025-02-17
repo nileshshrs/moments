@@ -2,16 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
+import 'package:moments/app/di/di.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/profile/view_model/profile_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final sharedPreferences = getIt<SharedPreferences>();
+    final String? userId = sharedPreferences.getString("userID");
     return MultiBlocListener(
       listeners: [
         BlocListener<PostBloc, PostState>(
@@ -219,40 +224,50 @@ class HomeScreen extends StatelessWidget {
                                 const SizedBox(height: 8),
 
                                 // Like & Comment Buttons
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        print("Liked");
-                                      },
-                                      icon: const Icon(
-                                        CupertinoIcons.heart_fill,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    const Text(
-                                      '120',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    IconButton(
-                                      onPressed: () {
-                                        print("Commented");
-                                      },
-                                      icon: const Icon(
-                                        CupertinoIcons.conversation_bubble,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const Text(
-                                      '45',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
+                                BlocBuilder<InteractionsBloc,
+                                    InteractionsState>(
+                                  builder: (context, state) {
+                                    return Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            context
+                                                .read<InteractionsBloc>()
+                                                .add(ToggleLikes(
+                                                    userID: userId!,
+                                                    postID: post.id));
+                                          },
+                                          icon: const Icon(
+                                            CupertinoIcons.heart_fill,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        const Text(
+                                          '120',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        IconButton(
+                                          onPressed: () {
+                                            print("Commented");
+                                            print(userId);
+                                          },
+                                          icon: const Icon(
+                                            CupertinoIcons.conversation_bubble,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        const Text(
+                                          '45',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ],
                             ),

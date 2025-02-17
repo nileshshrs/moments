@@ -6,6 +6,7 @@ import 'package:moments/features/conversation/presentation/view/create_conversat
 import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
+import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/profile/view_model/profile_bloc.dart';
@@ -25,6 +26,7 @@ class DashboardView extends StatelessWidget {
         BlocProvider.value(value: getIt<SearchBloc>()),
         BlocProvider.value(value: getIt<ProfileBloc>()),
         BlocProvider.value(value: getIt<ConversationBloc>()),
+        BlocProvider.value(value: getIt<InteractionsBloc>()),
       ],
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {

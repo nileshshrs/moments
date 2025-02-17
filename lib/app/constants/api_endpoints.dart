@@ -38,5 +38,8 @@ class ApiEndpoints {
   //single posts
   static const String postByID = "/post/get";
 
+  //likes
+  static const String toggleLike = "/likes/toggle-likes";
+
   //add more later
 }
