@@ -18,192 +18,175 @@ class SinglePostScreen extends StatelessWidget {
     final sharedPreferences = getIt<SharedPreferences>();
     final String? userId = sharedPreferences.getString("userID");
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => getIt<PostBloc>()..add(LoadPostByID(id: postId)),
-        ),
-        BlocProvider(
-          create: (context) =>
-              getIt<InteractionsBloc>()..add(GetPostLikes(postID: postId)),
-        ),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Post"),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              size: 20,
-            ),
-          ),
-        ),
-        body: BlocBuilder<PostBloc, PostState>(
-          builder: (context, postState) {
-            if (postState.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    // Dispatch events only once using addPostFrameCallback to avoid multiple triggers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PostBloc>().add(LoadPostByID(id: postId));
+      context.read<InteractionsBloc>().add(GetPostLikes(postID: postId));
+    });
 
-            final post = postState.post;
-            if (post == null) {
-              return const Center(child: Text("Failed to load post"));
-            }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Post"),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+        ),
+      ),
+      body: BlocBuilder<PostBloc, PostState>(
+        builder: (context, postState) {
+          if (postState.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ✅ Post Header (User Info)
-                  Row(
-                    children: [
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF63C57A),
-                            width: 2,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 10,
-                          backgroundImage: NetworkImage(post.user.image[0]),
-                        ),
+          final post = postState.post;
+          if (post == null) {
+            return const Center(child: Text("Failed to load post"));
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ✅ Post Header (User Info)
+                Row(
+                  children: [
+                    Container(
+                      width: 45,
+                      height: 45,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFF63C57A), width: 2),
                       ),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                           Formatter.capitalize(post.user.username),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            Formatter.formatTimeAgo(post.createdAt),
-                            style: const TextStyle(fontWeight: FontWeight.w200),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  // ✅ Post Content
-                  if (post.content.isNotEmpty)
-                    SizedBox(
-                      width: double.infinity,
-                      child: Text(
-                        post.content,
-                        style: const TextStyle(fontSize: 16),
-                        textAlign: TextAlign.left,
+                      child: CircleAvatar(
+                        radius: 10,
+                        backgroundImage: NetworkImage(post.user.image[0]),
                       ),
                     ),
-                  const SizedBox(height: 8),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          Formatter.capitalize(post.user.username),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          Formatter.formatTimeAgo(post.createdAt),
+                          style: const TextStyle(fontWeight: FontWeight.w200),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
 
-                  // ✅ Post Image Handling
-                  if (post.image.isNotEmpty)
-                    SizedBox(
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: (post.image.length > 1)
-                          ? FlutterCarousel(
-                              options: FlutterCarouselOptions(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.6,
-                                autoPlay: false,
-                                showIndicator: true,
-                                viewportFraction: 1.0,
-                                slideIndicator: CircularSlideIndicator(
-                                  slideIndicatorOptions: SlideIndicatorOptions(
-                                    indicatorRadius: 4,
-                                    itemSpacing: 12,
-                                  ),
-                                ),
-                              ),
-                              items: post.image.map((imageUrl) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(imageUrl),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            )
-                          : Container(
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(post.image[0]),
-                                  fit: BoxFit.cover,
+                // ✅ Post Content
+                if (post.content.isNotEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      post.content,
+                      style: const TextStyle(fontSize: 16),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                const SizedBox(height: 8),
+
+                // ✅ Post Image Handling
+                if (post.image.isNotEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: (post.image.length > 1)
+                        ? FlutterCarousel(
+                            options: FlutterCarouselOptions(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              autoPlay: false,
+                              showIndicator: true,
+                              viewportFraction: 1.0,
+                              slideIndicator: CircularSlideIndicator(
+                                slideIndicatorOptions: SlideIndicatorOptions(
+                                  indicatorRadius: 4,
+                                  itemSpacing: 12,
                                 ),
                               ),
                             ),
-                    ),
-                  const SizedBox(height: 8),
+                            items: post.image.map((imageUrl) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(imageUrl),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          )
+                        : Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(post.image[0]),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                  ),
+                const SizedBox(height: 8),
 
-                  // ✅ Like & Comment Buttons with InteractionBloc
-                  BlocBuilder<InteractionsBloc, InteractionsState>(
-                    builder: (context, likeState) {
-                      if (likeState.isLoading) {
-                        return const SizedBox
-                            .shrink(); // Hides UI until likes are loaded
-                      }
+                // ✅ Like & Comment Buttons with InteractionBloc
+                BlocBuilder<InteractionsBloc, InteractionsState>(
+                  builder: (context, likeState) {
+                    if (likeState.isLoading) {
+                      return const SizedBox.shrink(); // Hides UI until likes are loaded
+                    }
 
-                      final likeCount = likeState.likes[postId]?.likeCount ?? 0;
-                      final userLiked =
-                          likeState.likes[postId]?.userLiked ?? false;
+                    final likeCount = likeState.likes[postId]?.likeCount ?? 0;
+                    final userLiked = likeState.likes[postId]?.userLiked ?? false;
 
-                      return Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {
+                    return Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            if (userId != null) {
                               context.read<InteractionsBloc>().add(
-                                    ToggleLikes(
-                                      userID: userId!,
-                                      postID: postId,
-                                    ),
+                                    ToggleLikes(userID: userId!, postID: postId),
                                   );
-                            },
-                            icon: Icon(
-                              CupertinoIcons.heart_fill,
-                              color: userLiked ? Colors.red : Colors.grey,
-                            ),
+                            }
+                          },
+                          icon: Icon(
+                            CupertinoIcons.heart_fill,
+                            color: userLiked ? Colors.red : Colors.grey,
                           ),
-                          Text(
-                            likeCount.toString(),
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          likeCount.toString(),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          onPressed: () {
+                            print("Commented");
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.conversation_bubble,
+                            color: Colors.black,
                           ),
-                          const SizedBox(width: 16),
-                          IconButton(
-                            onPressed: () {
-                              print("Commented");
-                            },
-                            icon: const Icon(
-                              CupertinoIcons.conversation_bubble,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const Text(
-                            '45',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                        ),
+                        const Text(
+                          '45',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

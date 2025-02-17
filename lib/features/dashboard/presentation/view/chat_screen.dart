@@ -140,12 +140,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
                       // ✅ Unread message logic remains the same
                       final bool isUnread = conversation.read == currentUserId;
-
+ 
                       return GestureDetector(
-                        onTap: () async {
+                        onTap: ()  {
                           conversationBloc
                               .add(UpdateConversation(id: conversation.id!));
-                          await Navigator.of(context).push(
+                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => BlocProvider.value(
                                 value: conversationBloc,
