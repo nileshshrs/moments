@@ -79,7 +79,7 @@ class SinglePostScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            post.user.username,
+                           Formatter.capitalize(post.user.username),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 2),
