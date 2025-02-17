@@ -1,11 +1,11 @@
 part of 'interactions_bloc.dart';
 
-class InteractionsState {
+ class InteractionsState extends Equatable {
   final Map<String, LikeDTO> likes; // ✅ Ensure likes is always a Map
   final bool isLoading;
   final bool isSuccess;
 
-  InteractionsState({
+  const InteractionsState({
     required this.likes,
     required this.isLoading,
     required this.isSuccess,
@@ -30,7 +30,6 @@ class InteractionsState {
       isSuccess: isSuccess ?? this.isSuccess,
     );
   }
-
   @override
-  List<Object?> get props => [likes, isLoading, isSuccess];
+  List<Object?> get props =>[likes, isLoading, isSuccess];
 }
