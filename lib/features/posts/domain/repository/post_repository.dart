@@ -14,4 +14,6 @@ abstract interface class IPostRepository {
   Future<Either<Failure, List<PostDTO>>> getPosts();
 
   Future<Either<Failure, List<PostApiModel>>> getPostsByUser();
+
+  Future<Either<Failure, PostDTO>> getPostByID(String id);
 }

@@ -35,5 +35,8 @@ class ApiEndpoints {
   static const String fetchMessages = "messages/conversation/get/";
   static const String createMessages = "messages/create/";
 
+  //single posts
+  static const String postByID = "/post/get";
+
   //add more later
 }

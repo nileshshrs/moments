@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/posts/presentation/view/single_post/single_post.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/profile/view/edit_profile.dart';
 import 'package:moments/features/profile/view_model/profile_bloc.dart';
@@ -282,7 +283,15 @@ class ProfileScreen extends StatelessWidget {
 
                             return GestureDetector(
                               onTap: () {
-                                print(post);
+                                if (post.id != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          SinglePostScreen(postId: post.id!),
+                                    ),
+                                  );
+                                }
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(0),

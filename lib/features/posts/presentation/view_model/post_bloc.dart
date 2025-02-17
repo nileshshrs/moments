@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:moments/features/posts/data/dto/post_dto.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
+import 'package:moments/features/posts/domain/use_case/get_post_by_id_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
 
@@ -15,23 +16,27 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final CreatePostUsecase _createPostUsecase;
   final UploadImageUsecase _uploadImageUsecase;
   final GetPostsUsecase _getPostsUsecase;
+  final GetPostByIdUsecase _getPostByIdUsecase;
 
   PostBloc({
     required CreatePostUsecase createPostUsecase,
     required UploadImageUsecase uploadImageUsecase,
     required GetPostsUsecase getPostUsecase,
+    required GetPostByIdUsecase getPostByIdUsecase,
   })  : _uploadImageUsecase = uploadImageUsecase,
         _createPostUsecase = createPostUsecase,
         _getPostsUsecase = getPostUsecase,
+        _getPostByIdUsecase = getPostByIdUsecase,
         super(PostState.initial()) {
     on<CreatePost>(_createPosts);
     on<UploadImage>(_onLoadImage);
     on<LoadPosts>(_loadPosts);
+    on<LoadPostByID>(_loadPostByID);
 
     add(LoadPosts());
   }
   void _createPosts(CreatePost event, Emitter<PostState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isSuccess: false));
     final result = await _createPostUsecase
         .call(CreatePostParams(content: event.content, image: event.images));
 
@@ -94,5 +99,19 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         ));
       },
     );
+  }
+
+  _loadPostByID(LoadPostByID event, Emitter<PostState> emit) async {
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+
+    final results =
+        await _getPostByIdUsecase.call(GetPostsByIDParams(id: event.id));
+
+    results.fold((failure) {
+      print('failure: $failure');
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (post) {
+      emit(state.copyWith(isLoading: false, isSuccess: true, post: post));
+    });
   }
 }

@@ -31,3 +31,11 @@ class UploadImage extends PostEvent {
 class LoadPosts extends PostEvent {}
 
 class LoadPostsByUser extends PostEvent {}
+
+class LoadPostByID extends PostEvent {
+  final String id;
+  const LoadPostByID({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

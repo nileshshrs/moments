@@ -6,7 +6,7 @@ class PostState extends Equatable {
   final String? error;
   final List<String>? images;
   final List<PostDTO>? posts;
-
+  final PostDTO? post;
 
   const PostState({
     required this.isLoading,
@@ -14,7 +14,7 @@ class PostState extends Equatable {
     this.images,
     this.error,
     this.posts,
-
+    this.post,
   });
 
   factory PostState.initial() {
@@ -23,6 +23,7 @@ class PostState extends Equatable {
       isSuccess: false,
       images: [],
       posts: [],
+      post: null,
     );
   }
 
@@ -32,6 +33,7 @@ class PostState extends Equatable {
     List<String>? images,
     String? error,
     List<PostDTO>? posts,
+    post
   }) {
     return PostState(
       isLoading: isLoading ?? this.isLoading,
@@ -39,11 +41,17 @@ class PostState extends Equatable {
       images: images ?? this.images,
       error: error ?? this.error,
       posts: posts ?? this.posts,
-
+      post: post ?? this.post,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [isLoading, isSuccess, images, error, posts,];
+  List<Object?> get props => [
+        isLoading,
+        isSuccess,
+        images,
+        error,
+        posts,
+        post
+      ];
 }

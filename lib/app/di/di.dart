@@ -28,6 +28,7 @@ import 'package:moments/features/dashboard/presentation/view_model/dashboard_cub
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
+import 'package:moments/features/posts/domain/use_case/get_post_by_id_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_posts_by_user_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
@@ -190,12 +191,20 @@ Future<void> _initPostDependencies() async {
       repository: getIt<PostRemoteRepository>(),
     ),
   );
+
+  getIt.registerLazySingleton<GetPostByIdUsecase>(
+    () => GetPostByIdUsecase(
+      getIt<PostRemoteRepository>(),
+    ),
+  );
   // Register PostBloc
   getIt.registerFactory<PostBloc>(
     () => PostBloc(
-        createPostUsecase: getIt<CreatePostUsecase>(),
-        uploadImageUsecase: getIt<UploadImageUsecase>(),
-        getPostUsecase: getIt<GetPostsUsecase>()),
+      createPostUsecase: getIt<CreatePostUsecase>(),
+      uploadImageUsecase: getIt<UploadImageUsecase>(),
+      getPostUsecase: getIt<GetPostsUsecase>(),
+      getPostByIdUsecase: getIt<GetPostByIdUsecase>(),
+    ),
   );
 }
 
@@ -270,11 +279,13 @@ Future<void> _initConversationDependencies() async {
   );
 
   getIt.registerLazySingleton<GetConversationsUsecase>(
-    () => GetConversationsUsecase(repository: getIt<ConversationRemoteRepository>()),
+    () => GetConversationsUsecase(
+        repository: getIt<ConversationRemoteRepository>()),
   );
 
   getIt.registerLazySingleton<GetConnectionsUsecase>(
-    () => GetConnectionsUsecase(repository: getIt<ConversationRemoteRepository>()),
+    () => GetConnectionsUsecase(
+        repository: getIt<ConversationRemoteRepository>()),
   );
 
   getIt.registerLazySingleton<CreateConversationUsecase>(
@@ -314,9 +325,9 @@ Future<void> _initConversationDependencies() async {
       createConversationUsecase: getIt<CreateConversationUsecase>(),
       getMessagesUsecase: getIt<GetMessagesUsecase>(),
       createMessageUsecase: getIt<CreateMessageUsecase>(),
-      updateConversationUsecase: getIt<UpdateConversationUsecase>(), // ✅ Injected Here
+      updateConversationUsecase:
+          getIt<UpdateConversationUsecase>(), // ✅ Injected Here
       socketService: getIt<SocketService>(),
     ),
   );
 }
-
