@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:moments/app/di/di.dart';
+import 'package:moments/core/utils/formatter.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -83,7 +84,7 @@ class SinglePostScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            post.createdAt,
+                            Formatter.formatTimeAgo(post.createdAt),
                             style: const TextStyle(fontWeight: FontWeight.w200),
                           ),
                         ],
