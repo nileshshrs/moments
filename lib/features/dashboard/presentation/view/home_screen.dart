@@ -17,6 +17,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final sharedPreferences = getIt<SharedPreferences>();
     final String? userId = sharedPreferences.getString("userID");
+
     return MultiBlocListener(
       listeners: [
         BlocListener<PostBloc, PostState>(
@@ -33,31 +34,12 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
               children: [
-                SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Container(
-                      //   width: 45,
-                      //   height: 45,
-                      //   decoration: BoxDecoration(
-                      //     shape: BoxShape.circle,
-                      //     border: Border.all(
-                      //       color: const Color(0xFF63C57A),
-                      //       width: 2,
-                      //     ),
-                      //   ),
-                      //   child: const CircleAvatar(
-                      //     radius: 10,
-                      //     backgroundImage: NetworkImage(
-                      //         'https://img.freepik.com/free-photo/artist-white_1368-3546.jpg'),
-                      //   ),
-                      // ),
-
                       Expanded(
                         child: Container(
                           width: double.infinity,
@@ -83,8 +65,7 @@ class HomeScreen extends StatelessWidget {
                               );
                             },
                             child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 8.0, vertical: 1.0),
+                              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
                               child: Text(
                                 'What\'s on your mind...?',
                                 style: TextStyle(fontWeight: FontWeight.w400),
@@ -96,67 +77,47 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
+
                 // ✅ Posts Section
                 BlocBuilder<PostBloc, PostState>(
                   builder: (context, state) {
                     if (state.isLoading) {
-                      return Container(
+                      return SizedBox(
                         height: MediaQuery.of(context).size.height * .5,
                         width: double.infinity,
-                        color: Colors.white,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                        child: const Center(child: CircularProgressIndicator()),
                       );
                     } else if (state.posts == null || state.posts!.isEmpty) {
-                      return const Center(
-                          child: Text("No posts as of currently."));
+                      return const Center(child: Text("No posts as of currently."));
                     } else {
                       return Column(
                         children: state.posts!.map((post) {
+                          context.read<InteractionsBloc>().add(GetPostLikes(postID: post.id));
+
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Column(
                               children: [
-                                // Post Header (User Info)
+                                // Post Header
                                 Row(
                                   children: [
-                                    Container(
-                                      width: 45,
-                                      height: 45,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: const Color(0xFF63C57A),
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: 10,
-                                        backgroundImage:
-                                            NetworkImage(post.user.image[0]),
-                                      ),
+                                    CircleAvatar(
+                                      backgroundImage: NetworkImage(post.user.image[0]),
+                                      radius: 22,
                                     ),
                                     const SizedBox(width: 8),
                                     Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          Formatter.capitalize(
-                                              post.user.username),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
+                                          Formatter.capitalize(post.user.username),
+                                          style: const TextStyle(fontWeight: FontWeight.bold),
                                         ),
-                                        SizedBox(height: 2),
+                                        const SizedBox(height: 2),
                                         Text(
-                                          Formatter.formatTimeAgo(
-                                              post.createdAt),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w200),
+                                          Formatter.formatTimeAgo(post.createdAt),
+                                          style: const TextStyle(fontWeight: FontWeight.w200),
                                         ),
                                       ],
                                     ),
@@ -170,31 +131,25 @@ class HomeScreen extends StatelessWidget {
                                     width: double.infinity,
                                     child: Text(
                                       post.content,
-                                      style: TextStyle(fontSize: 16),
+                                      style: const TextStyle(fontSize: 16),
                                       textAlign: TextAlign.left,
                                     ),
                                   ),
                                 const SizedBox(height: 8),
 
-                                // Post Image
+                                // ✅ Post Image with Carousel
                                 SizedBox(
                                   width: double.infinity,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.5,
+                                  height: MediaQuery.of(context).size.height * 0.5,
                                   child: post.image.length > 1
                                       ? FlutterCarousel(
                                           options: FlutterCarouselOptions(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.5,
+                                            height: MediaQuery.of(context).size.height * 0.5,
                                             autoPlay: false,
                                             showIndicator: true,
                                             viewportFraction: 1.0,
-                                            slideIndicator:
-                                                CircularSlideIndicator(
-                                              slideIndicatorOptions:
-                                                  SlideIndicatorOptions(
+                                            slideIndicator: CircularSlideIndicator(
+                                              slideIndicatorOptions: SlideIndicatorOptions(
                                                 indicatorRadius: 4,
                                                 itemSpacing: 12,
                                               ),
@@ -214,8 +169,7 @@ class HomeScreen extends StatelessWidget {
                                       : Container(
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
-                                              image:
-                                                  NetworkImage(post.image[0]),
+                                              image: NetworkImage(post.image[0]),
                                               fit: BoxFit.cover,
                                             ),
                                           ),
@@ -223,30 +177,39 @@ class HomeScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
 
-                                // Like & Comment Buttons
-                                BlocBuilder<InteractionsBloc,
-                                    InteractionsState>(
-                                  builder: (context, state) {
+                                // ✅ Like & Comment Buttons
+                                BlocBuilder<InteractionsBloc, InteractionsState>(
+                                  buildWhen: (previous, current) =>
+                                      previous.likes != current.likes, // ✅ Prevents unnecessary rebuilds
+                                  builder: (context, likeState) {
+                                    if (likeState.isLoading) {
+                                      return const SizedBox.shrink(); // ✅ Prevents UI flicker
+                                    }
+
+                                    // ✅ Correctly get likes count
+                                    final likeCount = likeState.likes[post.id]?.likeCount ?? 0;
+                                    final userLiked = likeState.likes[post.id]?.userLiked ?? false;
+
                                     return Row(
                                       children: [
                                         IconButton(
                                           onPressed: () {
-                                            context
-                                                .read<InteractionsBloc>()
-                                                .add(ToggleLikes(
+                                            context.read<InteractionsBloc>().add(
+                                                  ToggleLikes(
                                                     userID: userId!,
-                                                    postID: post.id));
+                                                    postID: post.id,
+                                                  ),
+                                                );
                                           },
-                                          icon: const Icon(
+                                          icon: Icon(
                                             CupertinoIcons.heart_fill,
-                                            color: Colors.red,
+                                            color: userLiked ? Colors.red : Colors.grey, // ✅ Correct like status
                                           ),
                                         ),
-                                        const Text(
-                                          '120',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500),
+                                        Text(
+                                          likeCount.toString(), // ✅ Correctly mapped like count
+                                          style: const TextStyle(
+                                              fontSize: 16, fontWeight: FontWeight.w500),
                                         ),
                                         const SizedBox(width: 16),
                                         IconButton(
@@ -262,8 +225,7 @@ class HomeScreen extends StatelessWidget {
                                         const Text(
                                           '45',
                                           style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500),
+                                              fontSize: 16, fontWeight: FontWeight.w500),
                                         ),
                                       ],
                                     );
@@ -276,7 +238,7 @@ class HomeScreen extends StatelessWidget {
                       );
                     }
                   },
-                )
+                ),
               ],
             ),
           ),

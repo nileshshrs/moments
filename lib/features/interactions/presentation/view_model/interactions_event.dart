@@ -19,3 +19,12 @@ class ToggleLikes extends InteractionsEvent {
   @override
   List<Object> get props => [userID, postID];
 }
+
+class GetPostLikes extends InteractionsEvent {
+  final String postID;
+
+  const GetPostLikes({required this.postID});
+
+  @override
+  List<Object> get props => [postID];
+}

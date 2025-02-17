@@ -27,6 +27,7 @@ import 'package:moments/features/conversation/presentation/view_model/conversati
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/interactions/data/data_source/remote_data/like_remote_datasource.dart';
 import 'package:moments/features/interactions/data/repository/like_remote_repository.dart';
+import 'package:moments/features/interactions/domain/usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/toggle_like_usecase.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
@@ -354,9 +355,16 @@ Future<void> _initInteractionsDependencies() async {
     ),
   );
 
+  getIt.registerLazySingleton<GetLikesUsecase>(
+    () => GetLikesUsecase(
+      getIt<LikeRemoteRepository>(),
+    ),
+  );
+
   getIt.registerFactory(
     () => InteractionsBloc(
       toggleLikeUsecase: getIt<ToggleLikeUsecase>(),
+      getLikesUsecase: getIt<GetLikesUsecase>(),
     ),
   );
 }

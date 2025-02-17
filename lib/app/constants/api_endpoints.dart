@@ -40,6 +40,6 @@ class ApiEndpoints {
 
   //likes
   static const String toggleLike = "/likes/toggle-likes";
-
+  static const String getLikes = "/likes/likes-by-post";
   //add more later
 }
