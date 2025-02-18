@@ -4,244 +4,278 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:moments/app/di/di.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/interactions/presentation/view/comments/comments.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
-import 'package:moments/features/profile/view_model/profile_bloc.dart';
+import 'package:moments/features/profile/view/user_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool hasFetchedPosts = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!hasFetchedPosts) {
+      context.read<PostBloc>().add(LoadPosts());
+      hasFetchedPosts = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final sharedPreferences = getIt<SharedPreferences>();
     final String? userId = sharedPreferences.getString("userID");
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<PostBloc, PostState>(
-          listenWhen: (previous, current) =>
-              previous.isSuccess != current.isSuccess && current.isSuccess,
-          listener: (context, state) {
-            context.read<ProfileBloc>().add(LoadUserPosts());
-          },
-        ),
-      ],
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
+    return Scaffold(
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<PostBloc, PostState>(
+            listenWhen: (previous, current) =>
+                previous.isLoading != current.isLoading ||
+                previous.posts != current.posts,
+            listener: (context, state) {
+              if (!state.isLoading && state.posts != null) {
+                for (var post in state.posts!) {
+                  context
+                      .read<InteractionsBloc>()
+                      .add(FetchComments(postId: post.id));
+                  context
+                      .read<InteractionsBloc>()
+                      .add(GetPostLikes(postID: post.id));
+                }
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<PostBloc, PostState>(
+          buildWhen: (previous, current) =>
+              previous.isLoading != current.isLoading ||
+              previous.posts != current.posts,
+          builder: (context, postState) {
+            if (postState.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (postState.posts == null || postState.posts!.isEmpty) {
+              return const Center(child: Text("No posts available."));
+            }
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+
+                    // Create Post Section
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (BuildContext bottomSheetContext) {
+                              return BlocProvider.value(
+                                value: context.read<PostBloc>(),
+                                child: CreatePostBottomSheet(),
+                              );
+                            },
+                          );
+                        },
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                              color: Colors.grey[900]!,
-                              width: 0.4,
-                            ),
+                                color: Colors.grey[900]!, width: 0.4),
                           ),
-                          padding: const EdgeInsets.all(8.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (BuildContext bottomSheetContext) {
-                                  return BlocProvider.value(
-                                    value: context.read<PostBloc>(),
-                                    child: CreatePostBottomSheet(),
-                                  );
-                                },
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
-                              child: Text(
-                                'What\'s on your mind...?',
-                                style: TextStyle(fontWeight: FontWeight.w400),
-                              ),
-                            ),
+                          padding: const EdgeInsets.all(12.0),
+                          child: const Text(
+                            'What\'s on your mind...?',
+                            style: TextStyle(fontWeight: FontWeight.w400),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
+                    ),
+                    const SizedBox(height: 10),
 
-                // ✅ Posts Section
-                BlocBuilder<PostBloc, PostState>(
-                  builder: (context, state) {
-                    if (state.isLoading) {
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height * .5,
-                        width: double.infinity,
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    } else if (state.posts == null || state.posts!.isEmpty) {
-                      return const Center(child: Text("No posts as of currently."));
-                    } else {
-                      return Column(
-                        children: state.posts!.map((post) {
-                          context.read<InteractionsBloc>().add(GetPostLikes(postID: post.id));
+                    // Posts Section
+                    BlocBuilder<InteractionsBloc, InteractionsState>(
+                      buildWhen: (previous, current) =>
+                          previous.likes != current.likes ||
+                          previous.commentsCount != current.commentsCount ||
+                          previous.isLoading != current.isLoading,
+                      builder: (context, interactionState) {
+                        return Column(
+                          children: postState.posts!.map((post) {
+                            final likeData = interactionState.likes[post.id];
+                            final likeCount = likeData?.likeCount ?? 0;
+                            final userLiked = likeData?.userLiked ?? false;
+                            final commentCount =
+                                interactionState.commentsCount[post.id] ?? 0;
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Column(
-                              children: [
-                                // Post Header
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundImage: NetworkImage(post.user.image[0]),
-                                      radius: 22,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          Formatter.capitalize(post.user.username),
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          Formatter.formatTimeAgo(post.createdAt),
-                                          style: const TextStyle(fontWeight: FontWeight.w200),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-
-                                // Post Content
-                                if (post.content.isNotEmpty)
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: Text(
-                                      post.content,
-                                      style: const TextStyle(fontSize: 16),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                const SizedBox(height: 8),
-
-                                // ✅ Post Image with Carousel
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: MediaQuery.of(context).size.height * 0.5,
-                                  child: post.image.length > 1
-                                      ? FlutterCarousel(
-                                          options: FlutterCarouselOptions(
-                                            height: MediaQuery.of(context).size.height * 0.5,
-                                            autoPlay: false,
-                                            showIndicator: true,
-                                            viewportFraction: 1.0,
-                                            slideIndicator: CircularSlideIndicator(
-                                              slideIndicatorOptions: SlideIndicatorOptions(
-                                                indicatorRadius: 4,
-                                                itemSpacing: 12,
-                                              ),
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Column(
+                                children: [
+                                  // Post Header
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => UserScreen(
+                                                  userId: post.user.id),
                                             ),
-                                          ),
-                                          items: post.image.map((imageUrl) {
-                                            return Container(
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: NetworkImage(imageUrl),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        )
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: NetworkImage(post.image[0]),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
+                                          );
+                                        },
+                                        child: CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(post.user.image[0]),
+                                          radius: 22,
                                         ),
-                                ),
-                                const SizedBox(height: 8),
-
-                                // ✅ Like & Comment Buttons
-                                BlocBuilder<InteractionsBloc, InteractionsState>(
-                                  buildWhen: (previous, current) =>
-                                      previous.likes != current.likes, // ✅ Prevents unnecessary rebuilds
-                                  builder: (context, likeState) {
-                                    if (likeState.isLoading) {
-                                      return const SizedBox.shrink(); // ✅ Prevents UI flicker
-                                    }
-
-                                    // ✅ Correctly get likes count
-                                    final likeCount = likeState.likes[post.id]?.likeCount ?? 0;
-                                    final userLiked = likeState.likes[post.id]?.userLiked ?? false;
-
-                                    return Row(
-                                      children: [
-                                        IconButton(
-                                          onPressed: () {
-                                            context.read<InteractionsBloc>().add(
-                                                  ToggleLikes(
-                                                    userID: userId!,
-                                                    postID: post.id,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.5,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        UserScreen(
+                                                            userId:
+                                                                post.user.id),
                                                   ),
                                                 );
-                                          },
-                                          icon: Icon(
-                                            CupertinoIcons.heart_fill,
-                                            color: userLiked ? Colors.red : Colors.grey, // ✅ Correct like status
+                                              },
+                                              child: Text(
+                                                Formatter.capitalize(
+                                                    post.user.username),
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          likeCount.toString(), // ✅ Correctly mapped like count
-                                          style: const TextStyle(
-                                              fontSize: 16, fontWeight: FontWeight.w500),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        IconButton(
-                                          onPressed: () {
-                                            print("Commented");
-                                            print(userId);
-                                          },
-                                          icon: const Icon(
-                                            CupertinoIcons.conversation_bubble,
-                                            color: Colors.black,
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            Formatter.formatTimeAgo(
+                                                post.createdAt),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w200),
                                           ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Post Content
+                                  if (post.content.isNotEmpty)
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        post.content,
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  const SizedBox(height: 8),
+
+                                  // Post Image with Carousel
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.5,
+                                    child: post.image.length > 1
+                                        ? FlutterCarousel(
+                                            options: FlutterCarouselOptions(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.5,
+                                              autoPlay: false,
+                                              showIndicator: true,
+                                            ),
+                                            items: post.image.map((imageUrl) {
+                                              return Image.network(imageUrl,
+                                                  fit: BoxFit.cover);
+                                            }).toList(),
+                                          )
+                                        : Image.network(post.image[0],
+                                            fit: BoxFit.cover),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  // Like & Comment Buttons with Counts
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          context.read<InteractionsBloc>().add(
+                                                ToggleLikes(
+                                                    userID: userId!,
+                                                    postID: post.id),
+                                              );
+                                        },
+                                        icon: Icon(
+                                          CupertinoIcons.heart_fill,
+                                          color: userLiked
+                                              ? Colors.red
+                                              : Colors.grey,
                                         ),
-                                        const Text(
-                                          '45',
-                                          style: TextStyle(
-                                              fontSize: 16, fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    }
-                  },
+                                      ),
+                                      Text("$likeCount"),
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            builder: (context) =>
+                                                CommentScreen(postId: post.id),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                            CupertinoIcons.conversation_bubble),
+                                      ),
+                                      Text("$commentCount"),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

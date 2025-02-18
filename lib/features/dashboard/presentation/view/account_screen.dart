@@ -33,192 +33,142 @@ class ProfileScreen extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * .5,
                 width: double.infinity,
                 color: Colors.white,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                child: const Center(child: CircularProgressIndicator()),
               );
             } else {
               return Column(
                 children: [
-                  // Profile Section
+                  // Profile Picture & Stats in a Row (Aligned Properly)
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0), // Added spacing
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundImage: state.user?.image != null &&
-                                      state.user!.image!.isNotEmpty
-                                  ? NetworkImage(state.user!.image![0])
-                                  : const NetworkImage(
-                                      'https://img.freepik.com/free-photo/artist-white_1368-3546.jpg'),
-                            ),
-                            Expanded(
-                              child: Column(
+                        // Profile Picture
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage: state.user?.image != null &&
+                                  state.user!.image!.isNotEmpty
+                              ? NetworkImage(state.user!.image![0])
+                              : const NetworkImage(
+                                  'https://img.freepik.com/free-photo/artist-white_1368-3546.jpg'),
+                        ),
+                        const SizedBox(
+                            width:
+                                30), // Added space between Avatar and Stats Section
+
+                        // Posts & Stats Section (Takes Full Width)
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Username (Aligned Left)
+                              Text(
+                                Formatter.capitalize(
+                                    (state.user!.fullname == null ||
+                                            state.user!.fullname!.isEmpty)
+                                        ? state.user!.username
+                                        : state.user!.fullname!),
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Stats (Posts, Followers, Following) - Taking Full Width
+                              Row(
+                                // Ensures full width usage
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 35),
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: Text(
-                                        Formatter.capitalize(
-                                            (state.user!.fullname == null ||
-                                                    state.user!.fullname!
-                                                        .isEmpty)
-                                                ? state.user!.username
-                                                : state.user!.fullname!),
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
+                                  Column(
+                                    children: [
+                                      Text(
+                                        state.posts!.length.toString(),
+                                        style: const TextStyle(
+                                            fontSize: 14,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                    ),
+                                      const Text(
+                                        'Posts',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(
-                                    height: 5,
+                                  const SizedBox(width: 51),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        '$followersCount',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const Text(
+                                        'Followers',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(width: 10),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              state.posts!.length.toString(),
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            const Text(
-                                              'posts',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              '$followersCount',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            const Text(
-                                              'followers',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              '$followingCount',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            const Text(
-                                              'following',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                  const SizedBox(width: 51),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        '$followingCount',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const Text(
+                                        'Following',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 20),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Text(
-                            Formatter.capitalize(
-                                state.user?.email ?? 'example@example.com'),
-                            textAlign: TextAlign.start,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        if (state.user?.bio != null &&
-                            state.user!.bio!.isNotEmpty)
-                          SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              state.user!
-                                  .bio!, // ✅ Safely using bio after checking it's not null
-                              textAlign: TextAlign.start,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 38,
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[200],
-                              elevation: 0,
-                              disabledForegroundColor: Colors.grey[200],
-                              disabledBackgroundColor: Colors.grey[200],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              shadowColor: Colors.transparent,
-                            ),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (BuildContext editProfileBottomSheet) {
-                                  return BlocProvider.value(
-                                    value: context.read<ProfileBloc>(),
-                                    child: EditProfile(state.user!),
-                                  );
-                                },
-                              );
-                            },
-                            child: const Text(
-                              "Edit profile",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600),
-                            ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  // Grid Icon Section with Border below it
+                  // Edit Profile Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SizedBox(
+                      height: 38,
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (BuildContext editProfileBottomSheet) {
+                              return BlocProvider.value(
+                                value: context.read<ProfileBloc>(),
+                                child: EditProfile(state.user!),
+                              );
+                            },
+                          );
+                        },
+                        child: const Text(
+                          "Edit Profile",
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Grid Icon Section
                   Container(
                     decoration: BoxDecoration(
                       border: Border(
@@ -234,26 +184,19 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           Column(
                             children: [
-                              Icon(
-                                Icons.grid_on,
-                                size: 30,
-                              ),
+                              const Icon(Icons.grid_on, size: 30),
                               const SizedBox(height: 4),
                               Container(
-                                height: 3.0,
-                                color: Colors.black,
-                                width: 30,
-                              ),
+                                  height: 3.0, color: Colors.black, width: 30),
                             ],
                           ),
                         ],
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
 
-                  // Post Section (Grid of images)
+                  // Posts Section
                   state.posts == null || state.posts!.isEmpty
                       ? Container(
                           height: MediaQuery.of(context).size.height * .5,
@@ -261,10 +204,8 @@ class ProfileScreen extends StatelessWidget {
                           child: const Center(
                             child: Text(
                               "Capture your very first moment",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.black),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -295,7 +236,8 @@ class ProfileScreen extends StatelessWidget {
                                               value: context
                                                   .read<InteractionsBloc>()),
                                         ],
-                                        child: SinglePostScreen(postId:post.id!),
+                                        child:
+                                            SinglePostScreen(postId: post.id!),
                                       ),
                                     ),
                                   );
@@ -304,9 +246,9 @@ class ProfileScreen extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(0),
                                 child: Image.network(
-                                  (post.image.isNotEmpty)
+                                  post.image.isNotEmpty
                                       ? post.image[0]
-                                      : 'https://images.pexels.com/photos/20189671/pexels-photo-20189671/free-photo-of-flowers-around-logo-board-near-building-wall.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                                      : 'https://via.placeholder.com/150',
                                   fit: BoxFit.cover,
                                 ),
                               ),

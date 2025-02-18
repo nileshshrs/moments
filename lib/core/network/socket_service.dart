@@ -1,12 +1,13 @@
 import 'package:moments/app/di/di.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
   io.Socket? _socket;
 
   void connect() {
-    final sharedPreferences = getIt<SharedPreferences>(); // Get SharedPreferences instance
+    final sharedPreferences =
+        getIt<SharedPreferences>(); // Get SharedPreferences instance
     final userID = sharedPreferences.getString('userID') ?? "";
 
     if (userID.isEmpty) {
@@ -14,12 +15,12 @@ class SocketService {
       return;
     }
 
-    _socket = io.io('http://10.0.2.2:6278',
-      io.OptionBuilder()
-        .setTransports(['websocket']) // Use WebSocket
-        .setExtraHeaders({'Content-Type': 'application/json'}) // Set headers
-        .build()
-    );
+    _socket = io.io(
+        'http://192.168.31.172:6278',
+        io.OptionBuilder().setTransports(['websocket']) // Use WebSocket
+            .setExtraHeaders(
+                {'Content-Type': 'application/json'}) // Set headers
+            .build());
 
     _socket!.onConnect((_) {
       print('Connected to Socket.IO Server');
@@ -45,6 +46,7 @@ class SocketService {
     _socket?.disconnect();
     print('Disconnected from the server');
   }
+
   void sendMessage(Map<String, dynamic> messageData) {
     if (_socket != null && _socket!.connected) {
       _socket!.emit("send", messageData);
@@ -53,7 +55,8 @@ class SocketService {
       print("Socket is not connected. Message not sent.");
     }
   }
-   void onMessageReceived(Function(Map<String, dynamic>) callback) {
+
+  void onMessageReceived(Function(Map<String, dynamic>) callback) {
     _socket?.on("get", (data) {
       callback(data);
     });

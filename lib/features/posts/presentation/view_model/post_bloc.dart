@@ -47,11 +47,12 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       },
       (_) {
         // Handle success case
+        add(LoadPosts());
         emit(state.copyWith(
           isLoading: false,
           isSuccess: true,
         ));
-        add(LoadPosts());
+        Navigator.pop(event.context);
       },
     );
   }
@@ -80,7 +81,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   Future<void> _loadPosts(LoadPosts event, Emitter<PostState> emit) async {
     // Set loading state and reset success/error
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isSuccess: false));
 
     // Call use case to fetch posts
     final results = await _getPostsUsecase.call();

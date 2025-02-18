@@ -4,7 +4,9 @@ class ApiEndpoints {
   static const Duration connectionTimeout = Duration(seconds: 1000);
   static const Duration receiveTimeout = Duration(seconds: 1000);
 
-  static const String baseUrl = "http://10.0.2.2:6278/api/v1/";
+  static const String baseUrl = "http://192.168.31.172:6278/api/v1/";
+  // 192.168.31.172
+  // http://10.0.2.2
   //auth - login/ register page/ splash screen
   static const String login = "auth/mobile/sign-in";
   static const String register = "auth/sign-up";
@@ -41,5 +43,9 @@ class ApiEndpoints {
   //likes
   static const String toggleLike = "/likes/toggle-likes";
   static const String getLikes = "/likes/likes-by-post";
+
+  //comment
+  static const String createComment = "comment/create";
+  static const String getComments = "comment/get";
   //add more later
 }

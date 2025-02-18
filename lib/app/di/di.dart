@@ -25,8 +25,13 @@ import 'package:moments/features/conversation/domain/use_case/get_messages_useca
 import 'package:moments/features/conversation/domain/use_case/update_conversation_usecase.dart';
 import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
+import 'package:moments/features/interactions/data/data_source/remote_data/comment_remote_datasource.dart';
 import 'package:moments/features/interactions/data/data_source/remote_data/like_remote_datasource.dart';
+import 'package:moments/features/interactions/data/repository/comment_remote_repository.dart';
 import 'package:moments/features/interactions/data/repository/like_remote_repository.dart';
+import 'package:moments/features/interactions/domain/usecase/create_comment_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/delete_comment_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/get_comments_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/toggle_like_usecase.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
@@ -298,7 +303,7 @@ Future<void> _initConversationDependencies() async {
     () => CreateConversationUsecase(getIt<ConversationRemoteRepository>()),
   );
 
-  // ✅ Register UpdateConversationUsecase
+  //  Register UpdateConversationUsecase
   getIt.registerLazySingleton<UpdateConversationUsecase>(
     () => UpdateConversationUsecase(getIt<ConversationRemoteRepository>()),
   );
@@ -332,7 +337,7 @@ Future<void> _initConversationDependencies() async {
       getMessagesUsecase: getIt<GetMessagesUsecase>(),
       createMessageUsecase: getIt<CreateMessageUsecase>(),
       updateConversationUsecase:
-          getIt<UpdateConversationUsecase>(), // ✅ Injected Here
+          getIt<UpdateConversationUsecase>(), //  Injected Here
       socketService: getIt<SocketService>(),
     ),
   );
@@ -361,10 +366,39 @@ Future<void> _initInteractionsDependencies() async {
     ),
   );
 
+  if (!getIt.isRegistered<CommentRemoteDatasource>()) {
+    getIt.registerLazySingleton<CommentRemoteDatasource>(
+      () => CommentRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  getIt.registerLazySingleton<CommentRemoteRepository>(
+    () => CommentRemoteRepository(getIt<CommentRemoteDatasource>()),
+  );
+
+  getIt.registerLazySingleton<CreateCommentUsecase>(
+    () => CreateCommentUsecase(
+      getIt<CommentRemoteRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetCommentsUsecase>(
+    () => GetCommentsUsecase(
+      getIt<CommentRemoteRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton<DeleteCommentUsecase>(
+    () => DeleteCommentUsecase(
+      getIt<CommentRemoteRepository>(),
+    ),
+  );
+
   getIt.registerFactory(
     () => InteractionsBloc(
       toggleLikeUsecase: getIt<ToggleLikeUsecase>(),
       getLikesUsecase: getIt<GetLikesUsecase>(),
+      createCommentUsecase: getIt<CreateCommentUsecase>(),
+      getCommentsUsecase: getIt<GetCommentsUsecase>(), 
+      deleteCommentUsecase: getIt<DeleteCommentUsecase>(),
     ),
   );
 }

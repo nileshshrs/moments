@@ -28,3 +28,39 @@ class GetPostLikes extends InteractionsEvent {
   @override
   List<Object> get props => [postID];
 }
+
+class CreateComments extends InteractionsEvent {
+  final String postId;
+  final String comment;
+
+  const CreateComments({required this.postId, required this.comment});
+
+  @override
+  List<Object> get props => [postId, comment];
+}
+
+class FetchComments extends InteractionsEvent {
+  final String postId;
+
+  const FetchComments({required this.postId});
+  @override
+  List<Object> get props => [postId];
+}
+
+class FetchCommentCount extends InteractionsEvent {
+  final String postId;
+
+  const FetchCommentCount({required this.postId});
+  @override
+  List<Object> get props => [postId];
+}
+
+class DeleteComment extends InteractionsEvent {
+  final String postId;
+  final String commentId;
+
+  const DeleteComment({required this.postId, required this.commentId});
+
+  @override
+  List<Object> get props => [postId, commentId];
+}

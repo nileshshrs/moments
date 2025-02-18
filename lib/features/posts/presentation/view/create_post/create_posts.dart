@@ -114,7 +114,8 @@ class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                           ? () async {
                               context.read<PostBloc>().add(CreatePost(
                                   content: _controller.text,
-                                  images: _uploadedImageUrls));
+                                  images: _uploadedImageUrls,
+                                  context: context));
                               // Clear the text controller
                               _controller.clear();
                               // Check if the widget is still mounted before calling setState and using context
@@ -123,7 +124,7 @@ class CreatePostBottomSheetState extends State<CreatePostBottomSheet> {
                                 _images = [];
                                 _uploadedImageUrls = [];
                               });
-                              Navigator.pop(context);
+                             
                             }
                           : null,
                       style: ElevatedButton.styleFrom(

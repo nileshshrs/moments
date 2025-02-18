@@ -8,12 +8,12 @@ sealed class PostEvent extends Equatable {
 }
 
 class CreatePost extends PostEvent {
-  final BuildContext? context;
+  final BuildContext context;
   final String? content;
   final List<String> images;
 
   const CreatePost({
-    this.context,
+    required this.context,
     this.content,
     required this.images,
   });
