@@ -212,20 +212,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: post.image.length > 1
                                         ? FlutterCarousel(
                                             options: FlutterCarouselOptions(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.5,
-                                              autoPlay: false,
-                                              showIndicator: true,
-                                            ),
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.5,
+                                                autoPlay: false,
+                                                showIndicator: true,
+                                                viewportFraction: 1,
+                                                slideIndicator:
+                                                    CircularSlideIndicator(
+                                                        slideIndicatorOptions:
+                                                            SlideIndicatorOptions(
+                                                  indicatorRadius: 4,
+                                                  itemSpacing: 12,
+                                                ))),
                                             items: post.image.map((imageUrl) {
-                                              return Image.network(imageUrl,
-                                                  fit: BoxFit.cover);
+                                              return SizedBox(
+                                                width: double.infinity,
+                                                child: Image.network(imageUrl,
+                                                    fit: BoxFit.cover),
+                                              );
                                             }).toList(),
                                           )
-                                        : Image.network(post.image[0],
-                                            fit: BoxFit.cover),
+                                        : SizedBox(
+                                            width: double.infinity,
+                                            child: Image.network(post.image[0],
+                                                fit: BoxFit.cover),
+                                          ),
                                   ),
                                   const SizedBox(height: 8),
 
@@ -254,8 +267,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                           showModalBottomSheet(
                                             context: context,
                                             isScrollControlled: true,
-                                            builder: (context) =>
-                                                CommentScreen(postId: post.id),
+                                            builder: (BuildContext
+                                                commentBottomSheetContext) {
+                                              return BlocProvider.value(
+                                                value: context
+                                                    .read<InteractionsBloc>(),
+                                                child: CommentScreen(
+                                                  postId: post.id,
+                                                ),
+                                              );
+                                            },
                                           );
                                         },
                                         icon: const Icon(

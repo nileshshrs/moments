@@ -55,12 +55,12 @@ class CommentRemoteDatasource implements ICommentDataSource {
       throw Exception("Unexpected error: $e");
     }
   }
-  
+
   @override
-  Future<void> deleteComments(String id) async{
- try {
+  Future<void> deleteComments(String id) async {
+    try {
       Response res = await _dio.delete(
-        "${ApiEndpoints.getComments}/$id", // Corrected URL formatting
+        "${ApiEndpoints.deleteComments}/$id", // Corrected URL formatting
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {

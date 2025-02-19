@@ -34,7 +34,7 @@ class CommentRemoteRepository implements ICommentRepository {
   @override
   Future<Either<Failure, void>> deleteComments(String id) async{
     try {
-       await commentRemoteDatasource.getComments(id);
+       await commentRemoteDatasource.deleteComments(id);
       return Right(null);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));

@@ -16,7 +16,7 @@ class SocketService {
     }
 
     _socket = io.io(
-        'http://192.168.31.172:6278',
+        'http://10.0.2.2:6278',
         io.OptionBuilder().setTransports(['websocket']) // Use WebSocket
             .setExtraHeaders(
                 {'Content-Type': 'application/json'}) // Set headers

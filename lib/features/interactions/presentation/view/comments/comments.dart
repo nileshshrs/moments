@@ -80,93 +80,102 @@ class CommentScreen extends StatelessWidget {
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start, // Keeps avatar on top
+                          child: Column(
                             children: [
-                              // Circle Avatar
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundImage: comment.user.image.isNotEmpty
-                                    ? NetworkImage(comment.user.image.first)
-                                    : null,
-                                child: comment.user.image.isEmpty
-                                    ? const Icon(Icons.person)
-                                    : null,
-                              ),
-                              const SizedBox(
-                                  width: 10), // Space between avatar and text
-
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Row for Username, Time, and Delete Button
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                fontSize:
-                                                    16, // Same size as comment
-                                                color: Colors
-                                                    .black, // Ensure text is visible
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: Formatter.capitalize(comment
-                                                      .user
-                                                      .username), // Bold username
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                const TextSpan(
-                                                  text: " • ", // Separator
-                                                ),
-                                                TextSpan(
-                                                  text:
-                                                      formattedTime, // Regular (not bold) time
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.normal),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment
+                                    .center, // Ensures avatar and text start from the top
+                                children: [
+                                  // Image Avatar Section
+                                  SizedBox(
+                                    width: 45, // Fixed width for avatar section
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage:
+                                          comment.user.image.isNotEmpty
+                                              ? NetworkImage(
+                                                  comment.user.image.first)
+                                              : null,
+                                      child: comment.user.image.isEmpty
+                                          ? const Icon(Icons.person)
+                                          : null,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .center, // Align username with avatar height
+                                    children: [
+                                      Text(
+                                        Formatter.capitalize(
+                                            comment.user.username),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
                                         ),
+                                      ),
+                                      const SizedBox(
+                                          width:
+                                              5), // Small space between username and time
+                                      Text(
+                                        "• $formattedTime",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
 
-                                        // Delete Button (Only if userId matches)
-                                        if (userId == comment.user.userId)
-                                          IconButton(
+                                      // Delete Button (Only if userId matches)
+                                      if (userId == comment.user.userId)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 8),
+                                          child: IconButton(
                                             onPressed: () {
                                               context
                                                   .read<InteractionsBloc>()
-                                                  .add(DeleteComment(
+                                                  .add(
+                                                    DeleteComment(
                                                       postId: comment.post,
                                                       commentId:
-                                                          comment.commentId!));
+                                                          comment.commentId!,
+                                                    ),
+                                                  );
                                             },
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              color: Colors.grey,
-                                              size: 18,
-                                            ),
+                                            icon: const Icon(Icons.delete,
+                                                color: Colors.grey, size: 18),
                                             padding: EdgeInsets.zero,
                                             constraints: const BoxConstraints(),
                                           ),
-                                      ],
-                                    ),
+                                        ),
+                                    ],
+                                  ),
 
-                                    // Comment Text
-                                    Text(
-                                      Formatter.shortenText(comment.comment,
-                                          maxLength: 100),
-                                      style: const TextStyle(
-                                          fontSize: 16), // Same size as name
-                                    ),
-                                  ],
+                                  const SizedBox(
+                                      width:
+                                          10), // Space between avatar and comment section
+
+                                  // Comment + Username Section
+                                ],
+                              ),
+
+                              // Username and Timestamp in the same row
+                              // Minimal space between username and comment
+                              const SizedBox(height: 2),
+
+                              // Comment Text
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                width: double.infinity,
+                                child: Text(
+                                  Formatter.shortenText(comment.comment,
+                                      maxLength: 500),
+                                  textAlign: TextAlign.start,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ],

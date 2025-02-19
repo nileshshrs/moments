@@ -84,13 +84,13 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
       print('failure $failure');
       emit(state.copyWith(isSuccess: false));
     }, (comment) {
-      add(FetchComments(postId: event.postId));
 //  Update count after creating a comment
       emit(state.copyWith(
           isSuccess: true,
           comment: comment,
           comments: [...state.comments!, comment]));
     });
+    add(FetchComments(postId: event.postId));
   }
 
   Future<void> _fetchComments(
@@ -134,7 +134,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
   Future<void> _deleteComment(
       DeleteComment event, Emitter<InteractionsState> emit) async {
     emit(state.copyWith(isSuccess: false));
-    final params = DeleteCommentParams(id: event.postId);
+    final params = DeleteCommentParams(id: event.commentId);
     final results = await _deleteCommentUsecase.call(params);
     results.fold((failure) {
       print('failure: $failure');
@@ -144,7 +144,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
         isLoading: false,
         isSuccess: false,
       ));
-      add(FetchComments(postId:event. postId));
+      add(FetchComments(postId: event.postId));
       add(FetchCommentCount(
           postId: event.postId)); //  Update count after fetching comments
     });
