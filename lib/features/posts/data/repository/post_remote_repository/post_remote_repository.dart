@@ -61,4 +61,14 @@ class PostRemoteRepository implements IPostRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
+  
+  @override
+  Future<Either<Failure, List<PostApiModel>>> getPostsByUserID(String id)async {
+ try {
+      final posts = await _postRemoteDatasource.getPostsByUserID(id);
+      return Right(posts);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
 }

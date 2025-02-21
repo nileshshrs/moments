@@ -62,4 +62,10 @@ class UserLocalRepository implements IUserRepository {
     // TODO: implement updateUserProfile
     throw UnimplementedError();
   }
+  
+  @override
+  Future<Either<Failure, UserEntity>> getUserByID(String id) {
+    // TODO: implement getUserByID
+    throw UnimplementedError();
+  }
 }

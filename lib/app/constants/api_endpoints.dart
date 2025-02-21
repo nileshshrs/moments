@@ -48,5 +48,15 @@ class ApiEndpoints {
   static const String createComment = "comment/create";
   static const String getComments = "comment/get";
   static const String deleteComments = "comment/delete/";
+
+  //user by id
+  static const String getUserByID = "user/";
+
+  //posts by user id
+  static const String getPostsByUserID = "/post/get/user";
+
+  //follow
+  static const String getUserFollowers = "follow/get/followers";
+  static const String getUserFollowings = "follow/get/following";
   //add more later
 }

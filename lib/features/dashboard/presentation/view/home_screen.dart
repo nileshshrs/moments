@@ -159,13 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 0.5,
                                             child: GestureDetector(
                                               onTap: () {
-                                                Navigator.push(
-                                                  context,
+                                                Navigator.of(context).push(
                                                   MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        UserScreen(
-                                                            userId:
-                                                                post.user.id),
+                                                    builder: (_) => UserScreen(
+                                                        userId: post.user.id),
                                                   ),
                                                 );
                                               },

@@ -14,4 +14,6 @@ abstract interface class IPostDataSource {
   Future<List<PostApiModel>> getPostsByUser();
 
   Future<PostDTO> getPostsByID(String id);
+
+  Future<List<PostApiModel>> getPostsByUserID(String id);
 }

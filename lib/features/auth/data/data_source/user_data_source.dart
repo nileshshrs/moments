@@ -7,4 +7,5 @@ abstract interface class IUserDataSource {
   Future<dynamic> login(String username, String password);
   Future<UserEntity> getUserProfile();
   Future<void> updateUser(UserEntity user);
+  Future<UserEntity> getUserByID(String id);
 }

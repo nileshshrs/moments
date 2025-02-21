@@ -29,3 +29,19 @@ class UpdateProfile extends ProfileEvent {
   @override
   List<Object?> get props => [email, username, fullname, image, bio];
 }
+
+class LoadProfileByID extends ProfileEvent {
+  final String id;
+  const LoadProfileByID({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}
+
+class LoadPostsByUserID extends ProfileEvent {
+  final String id;
+  const LoadPostsByUserID({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

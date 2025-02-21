@@ -7,6 +7,8 @@ class InteractionsState extends Equatable {
   final CommentDTO? comment;
   final List<CommentDTO>? comments;
   final Map<String, int> commentsCount; // ✅ Stores comment count per post
+  final List<FollowDTO>? followers;
+  final List<FollowDTO>? followings;
 
   const InteractionsState({
     required this.likes,
@@ -15,16 +17,20 @@ class InteractionsState extends Equatable {
     this.comment,
     this.comments,
     required this.commentsCount,
+    this.followers,
+    this.followings
   });
 
   factory InteractionsState.initial() {
     return InteractionsState(
-      likes: {}, 
+      likes: {},
       isLoading: false,
       isSuccess: false,
       comment: null,
       comments: [],
       commentsCount: {}, // ✅ Initialize empty map to store counts
+      followers: [],
+      followings: [],
     );
   }
 
@@ -35,6 +41,8 @@ class InteractionsState extends Equatable {
     CommentDTO? comment,
     List<CommentDTO>? comments,
     Map<String, int>? commentsCount, // ✅ Ensure comment count updates correctly
+    List<FollowDTO> ? followers,
+    List<FollowDTO> ? followings,
   }) {
     return InteractionsState(
       likes: likes ?? this.likes,
@@ -43,9 +51,12 @@ class InteractionsState extends Equatable {
       comment: comment ?? this.comment,
       comments: comments ?? this.comments,
       commentsCount: commentsCount ?? this.commentsCount, // ✅ Store new counts
+      followers: followers ?? this.followers,
+      followings: followings ?? this.followings,
     );
   }
 
   @override
-  List<Object?> get props => [likes, isLoading, isSuccess, comment, comments, commentsCount];
+  List<Object?> get props =>
+      [likes, isLoading, isSuccess, comment, comments, commentsCount, followers, followings];
 }

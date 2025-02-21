@@ -203,6 +203,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       emit(state.copyWith(messages: updatedMessages));
     } else {
       add(LoadConversations());
+      add(FetchMessage(conversation: state.chat!));
     }
   }
 

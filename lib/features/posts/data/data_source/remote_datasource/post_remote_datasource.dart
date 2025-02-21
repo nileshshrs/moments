@@ -136,4 +136,25 @@ class PostRemoteDatasource implements IPostDataSource {
       throw Exception('Unexpected error: \$e');
     }
   }
+  
+  @override
+  Future<List<PostApiModel>> getPostsByUserID(String id) async{
+ try {
+      Response res = await _dio.get("${ApiEndpoints.getPostsByUserID}/$id");
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        List<dynamic> responseData = res.data;
+        List<PostApiModel> posts = responseData
+            .map((postJson) => PostApiModel.fromJson(postJson))
+            .toList();
+
+        return posts;
+      } else {
+        throw Exception('Failed to load posts. Status code: ${res.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw Exception('DioException: $e');
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 }

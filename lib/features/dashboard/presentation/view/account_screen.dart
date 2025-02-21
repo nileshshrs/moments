@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/interactions/presentation/view/follower/follower_view.dart';
+import 'package:moments/features/interactions/presentation/view/follower/following_view.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view/single_post/single_post.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/profile/view/edit_profile.dart';
 import 'package:moments/features/profile/view_model/profile_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  final int followersCount = 10;
-  final int followingCount = 10;
-
   @override
   Widget build(BuildContext context) {
+    // Fetch userID from SharedPreferences using GetIt
+    final prefs = GetIt.I<SharedPreferences>();
+    final userID = prefs.getString('userID');
+
+    context.read<InteractionsBloc>().add(FetchFollowers(id: userID!));
+    context.read<InteractionsBloc>().add(FetchFollowings(id: userID));
+
     return MultiBlocListener(
       listeners: [
         BlocListener<ProfileBloc, ProfileState>(
@@ -38,14 +46,13 @@ class ProfileScreen extends StatelessWidget {
             } else {
               return Column(
                 children: [
-                  // Profile Picture & Stats in a Row (Aligned Properly)
+                  // Profile Header Section
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0), // Added spacing
+                        horizontal: 16.0, vertical: 8.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Profile Picture
                         CircleAvatar(
                           radius: 40,
                           backgroundImage: state.user?.image != null &&
@@ -54,16 +61,11 @@ class ProfileScreen extends StatelessWidget {
                               : const NetworkImage(
                                   'https://img.freepik.com/free-photo/artist-white_1368-3546.jpg'),
                         ),
-                        const SizedBox(
-                            width:
-                                30), // Added space between Avatar and Stats Section
-
-                        // Posts & Stats Section (Takes Full Width)
+                        const SizedBox(width: 30),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Username (Aligned Left)
                               Text(
                                 Formatter.capitalize(
                                     (state.user!.fullname == null ||
@@ -74,54 +76,91 @@ class ProfileScreen extends StatelessWidget {
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 10),
-
-                              // Stats (Posts, Followers, Following) - Taking Full Width
                               Row(
-                                // Ensures full width usage
                                 children: [
                                   Column(
                                     children: [
                                       Text(
-                                        state.posts!.length.toString(),
+                                        state.posts?.length.toString() ?? "0",
                                         style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      const Text(
-                                        'Posts',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
+                                      const Text('Posts',
+                                          style: TextStyle(fontSize: 14)),
                                     ],
                                   ),
                                   const SizedBox(width: 51),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '$followersCount',
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const Text(
-                                        'Followers',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
+                                  BlocBuilder<InteractionsBloc,
+                                      InteractionsState>(
+                                    builder: (context, interactionState) {
+                                      return Column(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                builder: (BuildContext
+                                                    followerBottomSheetContext) {
+                                                  return BlocProvider.value(
+                                                      value: context.read<
+                                                          InteractionsBloc>(),
+                                                      child: FollowerBottomSheet(
+                                                          followers:
+                                                              interactionState
+                                                                  .followers!));
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              '${interactionState.followers?.length ?? 0}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          const Text('Followers',
+                                              style: TextStyle(fontSize: 14)),
+                                        ],
+                                      );
+                                    },
                                   ),
                                   const SizedBox(width: 51),
-                                  Column(
-                                    children: [
-                                      Text(
-                                        '$followingCount',
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const Text(
-                                        'Following',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ],
+                                  BlocBuilder<InteractionsBloc,
+                                      InteractionsState>(
+                                    builder: (context, interactionState) {
+                                      return Column(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                builder: (BuildContext
+                                                    followingBottomSheetContext) {
+                                                  return BlocProvider.value(
+                                                      value: context.read<
+                                                          InteractionsBloc>(),
+                                                      child: FollowingBottomSheet(
+                                                          following:
+                                                              interactionState
+                                                                  .followings!));
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              '${interactionState.followings?.length ?? 0}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          const Text('Following',
+                                              style: TextStyle(fontSize: 14)),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ],
                               ),

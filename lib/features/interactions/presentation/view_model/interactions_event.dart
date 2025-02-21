@@ -64,3 +64,20 @@ class DeleteComment extends InteractionsEvent {
   @override
   List<Object> get props => [postId, commentId];
 }
+
+class FetchFollowers extends InteractionsEvent {
+  final String id;
+  const FetchFollowers({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}
+class FetchFollowings extends InteractionsEvent {
+  final String id;
+  const FetchFollowings({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}
+
+

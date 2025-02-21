@@ -26,23 +26,29 @@ import 'package:moments/features/conversation/domain/use_case/update_conversatio
 import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/interactions/data/data_source/remote_data/comment_remote_datasource.dart';
+import 'package:moments/features/interactions/data/data_source/remote_data/follow_remote_datasource.dart';
 import 'package:moments/features/interactions/data/data_source/remote_data/like_remote_datasource.dart';
 import 'package:moments/features/interactions/data/repository/comment_remote_repository.dart';
+import 'package:moments/features/interactions/data/repository/follow_remote_repository.dart';
 import 'package:moments/features/interactions/data/repository/like_remote_repository.dart';
-import 'package:moments/features/interactions/domain/usecase/create_comment_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/delete_comment_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/get_comments_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/get_likes_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/comment_usecase/create_comment_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/comment_usecase/delete_comment_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/comment_usecase/get_comments_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followers_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followings_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
 import 'package:moments/features/posts/domain/use_case/create_post_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_post_by_id_usecase.dart';
+import 'package:moments/features/posts/domain/use_case/get_post_by_user_id_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_posts_by_user_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/get_posts_usecase.dart';
 import 'package:moments/features/posts/domain/use_case/upload_image_usecase.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
+import 'package:moments/features/profile/domain/usecase/get_by_user_id.dart';
 import 'package:moments/features/profile/view_model/profile_bloc.dart';
 import 'package:moments/features/search/view_model/search_bloc.dart';
 import 'package:moments/features/splash/presentation/view_model/splash_cubit.dart';
@@ -208,6 +214,8 @@ Future<void> _initPostDependencies() async {
       getIt<PostRemoteRepository>(),
     ),
   );
+  getIt.registerLazySingleton<GetPostByUserIdUsecase>(
+      () => GetPostByUserIdUsecase(getIt<PostRemoteRepository>()));
   // Register PostBloc
   getIt.registerFactory<PostBloc>(
     () => PostBloc(
@@ -267,12 +275,17 @@ Future<void> initUserProfileDependencies() async {
     );
   }
 
+  getIt.registerLazySingleton(
+      () => GetByUserIDUsecase(getIt<UserRemoteRepository>()));
+
   // Register ProfileBloc with the correct Usecase
   getIt.registerFactory<ProfileBloc>(
     () => ProfileBloc(
       userProfileUsecase: getIt<GetUserProfileUsecase>(),
       getPostsByUserUsecase: getIt<GetPostsByUserUsecase>(),
       updateUserUsecase: getIt<UpdateUserUsecase>(),
+      getUserByIDUsecase: getIt<GetByUserIDUsecase>(),
+      getPostByUserIdUsecase: getIt<GetPostByUserIdUsecase>(),
     ),
   );
 }
@@ -391,14 +404,35 @@ Future<void> _initInteractionsDependencies() async {
       getIt<CommentRemoteRepository>(),
     ),
   );
+  if (!getIt.isRegistered<FollowRemoteDatasource>()) {
+    getIt.registerLazySingleton<FollowRemoteDatasource>(
+      () => FollowRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  getIt.registerLazySingleton<FollowRemoteRepository>(
+    () => FollowRemoteRepository(getIt<FollowRemoteDatasource>()),
+  );
+  getIt.registerLazySingleton<GetFollowersUsecase>(
+    () => GetFollowersUsecase(
+      getIt<FollowRemoteRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetFollowingsUsecase>(
+    () => GetFollowingsUsecase(
+      getIt<FollowRemoteRepository>(),
+    ),
+  );
 
   getIt.registerFactory(
     () => InteractionsBloc(
       toggleLikeUsecase: getIt<ToggleLikeUsecase>(),
       getLikesUsecase: getIt<GetLikesUsecase>(),
       createCommentUsecase: getIt<CreateCommentUsecase>(),
-      getCommentsUsecase: getIt<GetCommentsUsecase>(), 
+      getCommentsUsecase: getIt<GetCommentsUsecase>(),
       deleteCommentUsecase: getIt<DeleteCommentUsecase>(),
+      getFollowersUsecase: getIt<GetFollowersUsecase>(),
+      getFollowingsUsecase: getIt<GetFollowingsUsecase>(),
     ),
   );
 }

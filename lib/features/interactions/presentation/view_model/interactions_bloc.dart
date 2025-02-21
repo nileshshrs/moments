@@ -1,12 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:moments/features/interactions/data/dto/comment_dto.dart';
+import 'package:moments/features/interactions/data/dto/follow_dto.dart';
 import 'package:moments/features/interactions/data/dto/like_dto.dart';
-import 'package:moments/features/interactions/domain/usecase/create_comment_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/delete_comment_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/get_comments_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/get_likes_usecase.dart';
-import 'package:moments/features/interactions/domain/usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/comment_usecase/create_comment_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/comment_usecase/delete_comment_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/comment_usecase/get_comments_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followers_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followings_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
 
 part 'interactions_event.dart';
 part 'interactions_state.dart';
@@ -17,6 +20,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
   final CreateCommentUsecase _createCommentUsecase;
   final GetCommentsUsecase _getCommentsUsecase;
   final DeleteCommentUsecase _deleteCommentUsecase;
+  final GetFollowersUsecase _getFollowersUsecase;
+  final GetFollowingsUsecase _getFollowingsUsecase;
 
   InteractionsBloc({
     required ToggleLikeUsecase toggleLikeUsecase,
@@ -24,11 +29,15 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     required CreateCommentUsecase createCommentUsecase,
     required GetCommentsUsecase getCommentsUsecase,
     required DeleteCommentUsecase deleteCommentUsecase,
+    required GetFollowersUsecase getFollowersUsecase,
+    required GetFollowingsUsecase getFollowingsUsecase,
   })  : _toggleLikeUsecase = toggleLikeUsecase,
         _getLikesUsecase = getLikesUsecase,
         _createCommentUsecase = createCommentUsecase,
         _getCommentsUsecase = getCommentsUsecase,
         _deleteCommentUsecase = deleteCommentUsecase,
+        _getFollowersUsecase = getFollowersUsecase,
+        _getFollowingsUsecase = getFollowingsUsecase,
         super(InteractionsState.initial()) {
     on<ToggleLikes>(_toggleLikes);
     on<GetPostLikes>(_getPostLikes);
@@ -36,6 +45,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     on<FetchComments>(_fetchComments);
     on<FetchCommentCount>(_fetchCommentCount); //  Added comment count fetching
     on<DeleteComment>(_deleteComment);
+    on<FetchFollowers>(_fetchFollowers);
+    on<FetchFollowings>(_fetchFollowings);
   }
 
   Future<void> _toggleLikes(
@@ -147,6 +158,38 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
       add(FetchComments(postId: event.postId));
       add(FetchCommentCount(
           postId: event.postId)); //  Update count after fetching comments
+    });
+  }
+
+  Future<void> _fetchFollowers(
+      FetchFollowers event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isSuccess: false));
+
+    final params = GetFollowerParams(id: event.id);
+    final results = await _getFollowersUsecase.call(params);
+
+    results.fold((failure) {
+      print('failure: $failure');
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (followers) {
+      emit(state.copyWith(
+          isLoading: false, isSuccess: true, followers: followers));
+    });
+  }
+
+  Future<void> _fetchFollowings(
+      FetchFollowings event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isSuccess: false));
+
+    final params = GetFollowerParams(id: event.id);
+    final results = await _getFollowingsUsecase.call(params);
+
+    results.fold((failure) {
+      print('failure: $failure');
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (followings) {
+      emit(state.copyWith(
+          isLoading: false, isSuccess: true, followings: followings));
     });
   }
 }

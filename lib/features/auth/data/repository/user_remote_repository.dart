@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:moments/core/error/failure.dart';
 import 'package:moments/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import 'package:moments/features/auth/data/dto/login_dto.dart';
+import 'package:moments/features/auth/data/model/user_api_model.dart';
 import 'package:moments/features/auth/domain/entity/user_entity.dart';
 import 'package:moments/features/auth/domain/repository/user_repository.dart';
 
@@ -60,12 +61,22 @@ class UserRemoteRepository implements IUserRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
-  
+
   @override
-  Future<Either<Failure, void>> updateUserProfile(UserEntity user) async{
-     try {
+  Future<Either<Failure, void>> updateUserProfile(UserEntity user) async {
+    try {
       await _userRemoteDatasource.updateUser(user);
       return Right(null);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString(), statusCode: 409));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> getUserByID(String id) async {
+    try {
+      final user = await _userRemoteDatasource.getUserByID(id);
+      return Right(user);
     } catch (e) {
       return Left(ApiFailure(message: e.toString(), statusCode: 409));
     }
