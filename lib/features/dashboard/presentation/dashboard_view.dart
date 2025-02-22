@@ -37,22 +37,49 @@ class DashboardView extends StatelessWidget {
                 : AppBar(
                     actions: state.selectedIndex == 0
                         ? [
-                            IconButton(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              icon: const Icon(Icons.notifications_none,
-                                  color: Colors.black),
-                              onPressed: () {
-                                context.read<InteractionsBloc>().add(UpdateNotifications());  
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  builder: (BuildContext
-                                      notificationBottomSheetContext) {
-                                    return BlocProvider.value(
-                                        value: context.read<InteractionsBloc>(),
-                                        child: NotificationScreen());
-                                  },
+                            BlocBuilder<InteractionsBloc, InteractionsState>(
+                              builder: (context, interactionState) {
+                                final hasUnreadNotifications =
+                                    interactionState.notifications?.any((n) => !n.read) ?? false;
+
+                                return Stack(
+                                  children: [
+                                    IconButton(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      icon: const Icon(Icons.notifications_none,
+                                          color: Colors.black),
+                                      onPressed: () {
+                                        context
+                                            .read<InteractionsBloc>()
+                                            .add(UpdateNotifications());
+
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          builder: (BuildContext notificationBottomSheetContext) {
+                                            return BlocProvider.value(
+                                              value: context.read<InteractionsBloc>(),
+                                              child: NotificationScreen(),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    if (hasUnreadNotifications)
+                                      Positioned(
+                                        right: 12,
+                                        top: 12,
+                                        child: Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 );
                               },
                             ),
@@ -84,11 +111,9 @@ class DashboardView extends StatelessWidget {
                                     showModalBottomSheet(
                                       context: context,
                                       isScrollControlled: true,
-                                      builder: (BuildContext
-                                          conversationBottomSheetContext) {
+                                      builder: (BuildContext conversationBottomSheetContext) {
                                         return BlocProvider.value(
-                                          value:
-                                              context.read<ConversationBloc>(),
+                                          value: context.read<ConversationBloc>(),
                                           child: CreateConversation(),
                                         );
                                       },
@@ -114,8 +139,8 @@ class DashboardView extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12.0),
                                 child: Text(
-                                  Formatter.capitalize(state.user?.username ??
-                                      'Example Username'),
+                                  Formatter.capitalize(
+                                      state.user?.username ?? 'Example Username'),
                                   style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600),

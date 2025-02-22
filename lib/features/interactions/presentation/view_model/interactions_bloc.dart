@@ -79,6 +79,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     on<GetAllNotifications>(_getAllNotifications);
     on<UpdateNotifications>(_updateAllNotifications);
 
+    add(GetAllNotifications());
     _socketService?.listenForNotifications((notification) {
       print("Real-time Notification Received: $notification");
 
