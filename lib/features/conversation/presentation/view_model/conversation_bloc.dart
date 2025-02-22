@@ -48,7 +48,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<FetchMessage>(_fetchMessage);
     on<CreateMessages>(_createMessages);
     on<UpdateConversation>(_updateConversation);
-    // add(LoadConversations());
+    add(LoadConversations());
     // add(LoadConnections());
     on<ReceivedMessage>(_handleReceivedMessage);
 
