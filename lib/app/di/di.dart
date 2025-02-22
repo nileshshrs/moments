@@ -42,6 +42,7 @@ import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/unfollow_user_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/notification_usecase/update_notifications_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/notification_usecase/create_notification_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/notification_usecase/get_all_notification_usecase.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
@@ -460,6 +461,11 @@ Future<void> _initInteractionsDependencies() async {
       getIt<NotificationRemoteRepository>(),
     ),
   );
+  getIt.registerLazySingleton<UpdateNotificationsUsecase>(
+    () => UpdateNotificationsUsecase(
+      getIt<NotificationRemoteRepository>(),
+    ),
+  );
 
   getIt.registerFactory(
     () => InteractionsBloc(
@@ -474,6 +480,8 @@ Future<void> _initInteractionsDependencies() async {
       unfollowUserUsecase: getIt<UnfollowUserUsecase>(),
       createNotificationUsecase: getIt<CreateNotificationUsecase>(),
       getAllNotificationUsecase: getIt<GetAllNotificationUsecase>(),
+      updateNotificationsUsecase: getIt<UpdateNotificationsUsecase>(),
+      socketService: getIt<SocketService>(),
     ),
   );
 }

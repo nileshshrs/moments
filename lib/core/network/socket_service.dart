@@ -4,10 +4,10 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
   io.Socket? _socket;
+  Function(Map<String, dynamic>)? _onNotificationReceived;
 
   void connect() {
-    final sharedPreferences =
-        getIt<SharedPreferences>(); // Get SharedPreferences instance
+    final sharedPreferences = getIt<SharedPreferences>();
     final userID = sharedPreferences.getString('userID') ?? "";
 
     if (userID.isEmpty) {
@@ -17,10 +17,8 @@ class SocketService {
 
     _socket = io.io(
         'http://10.0.2.2:6278',
-        io.OptionBuilder().setTransports(['websocket']) // Use WebSocket
-            .setExtraHeaders(
-                {'Content-Type': 'application/json'}) // Set headers
-            .build());
+        io.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
+            {'Content-Type': 'application/json'}).build());
 
     _socket!.onConnect((_) {
       print('Connected to Socket.IO Server');
@@ -29,6 +27,13 @@ class SocketService {
 
     _socket!.on('getusers', (users) {
       print("Connected users: $users");
+    });
+
+    _socket!.on('notification', (data) {
+      print("New notification received: $data");
+      if (_onNotificationReceived != null) {
+        _onNotificationReceived!(data);
+      }
     });
 
     _socket!.onDisconnect((_) {
@@ -56,9 +61,22 @@ class SocketService {
     }
   }
 
+  void sendNotification(Map<String, dynamic> notificationData) {
+    if (_socket != null && _socket!.connected) {
+      _socket!.emit("notify", notificationData);
+      print("Notification sent via socket: $notificationData");
+    } else {
+      print("Socket is not connected. Notification not sent.");
+    }
+  }
+
   void onMessageReceived(Function(Map<String, dynamic>) callback) {
     _socket?.on("get", (data) {
       callback(data);
     });
+  }
+
+  void listenForNotifications(Function(Map<String, dynamic>) callback) {
+    _onNotificationReceived = callback;
   }
 }

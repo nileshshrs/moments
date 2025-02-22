@@ -114,3 +114,5 @@ class CreateNotification extends InteractionsEvent {
 }
 
 class GetAllNotifications extends InteractionsEvent {}
+
+class UpdateNotifications extends InteractionsEvent{}

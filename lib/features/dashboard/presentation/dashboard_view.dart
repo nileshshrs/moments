@@ -43,11 +43,12 @@ class DashboardView extends StatelessWidget {
                               icon: const Icon(Icons.notifications_none,
                                   color: Colors.black),
                               onPressed: () {
+                                context.read<InteractionsBloc>().add(UpdateNotifications());  
                                 showModalBottomSheet(
                                   context: context,
                                   isScrollControlled: true,
                                   builder: (BuildContext
-                                      followerBottomSheetContext) {
+                                      notificationBottomSheetContext) {
                                     return BlocProvider.value(
                                         value: context.read<InteractionsBloc>(),
                                         child: NotificationScreen());

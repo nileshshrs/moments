@@ -4,4 +4,5 @@ import 'package:moments/features/interactions/domain/entity/notification_entity.
 abstract interface class INotificationDatasource {
   Future<void> createNotification(NotificationEntity notification);
   Future<List<NotificationDTO>> getAllNotification();
+  Future<void> updateNotifications();
 }

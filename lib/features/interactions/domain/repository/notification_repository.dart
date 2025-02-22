@@ -8,4 +8,5 @@ abstract interface class INotificationRepository {
       NotificationEntity notification);
 
   Future<Either<Failure, List<NotificationDTO>>> getAllNotification();
+  Future<Either<Failure, void>> updateNotifications();
 }

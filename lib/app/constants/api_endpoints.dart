@@ -64,5 +64,6 @@ class ApiEndpoints {
   //notification
   static const String createNotification = "notification/create";
   static const String getNotification = "notification/all";
+  static const String updateNotification = "notification/update";
   //add more later
 }

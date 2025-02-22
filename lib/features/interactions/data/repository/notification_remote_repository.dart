@@ -34,4 +34,16 @@ class NotificationRemoteRepository implements INotificationRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateNotifications() async {
+    try {
+      await _notificationRemoteDatasource.updateNotifications();
+      return const Right(
+          null); // ✅ Ensure it correctly returns Right(null) on success
+    } catch (e) {
+      print("Notification API Failure: $e");
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
 }

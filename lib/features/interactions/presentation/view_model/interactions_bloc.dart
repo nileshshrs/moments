@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:moments/app/di/di.dart';
+import 'package:moments/core/network/socket_service.dart';
 import 'package:moments/features/interactions/data/dto/comment_dto.dart';
 import 'package:moments/features/interactions/data/dto/follow_dto.dart';
 import 'package:moments/features/interactions/data/dto/like_dto.dart';
@@ -14,9 +15,9 @@ import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/unfollow_user_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/notification_usecase/update_notifications_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/notification_usecase/create_notification_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/notification_usecase/get_all_notification_usecase.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'interactions_event.dart';
 part 'interactions_state.dart';
@@ -33,6 +34,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
   final UnfollowUserUsecase _unfollowUserUsecase;
   final CreateNotificationUsecase _createNotificationUsecase;
   final GetAllNotificationUsecase _getAllNotificationUsecase;
+  final UpdateNotificationsUsecase _updateNotificationsUsecase;
+  final SocketService? _socketService;
 
   InteractionsBloc({
     required ToggleLikeUsecase toggleLikeUsecase,
@@ -46,6 +49,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     required UnfollowUserUsecase unfollowUserUsecase,
     required CreateNotificationUsecase createNotificationUsecase,
     required GetAllNotificationUsecase getAllNotificationUsecase,
+    required UpdateNotificationsUsecase updateNotificationsUsecase,
+    required SocketService socketService,
   })  : _toggleLikeUsecase = toggleLikeUsecase,
         _getLikesUsecase = getLikesUsecase,
         _createCommentUsecase = createCommentUsecase,
@@ -57,6 +62,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
         _unfollowUserUsecase = unfollowUserUsecase,
         _createNotificationUsecase = createNotificationUsecase,
         _getAllNotificationUsecase = getAllNotificationUsecase,
+        _updateNotificationsUsecase = updateNotificationsUsecase,
+        _socketService = socketService,
         super(InteractionsState.initial()) {
     on<ToggleLikes>(_toggleLikes);
     on<GetPostLikes>(_getPostLikes);
@@ -70,7 +77,14 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     on<UnfollowUser>(_unfollowUser);
     on<CreateNotification>(_createNotification);
     on<GetAllNotifications>(_getAllNotifications);
+    on<UpdateNotifications>(_updateAllNotifications);
 
+    _socketService?.listenForNotifications((notification) {
+      print("Real-time Notification Received: $notification");
+
+      // Automatically refetch notifications
+      add(GetAllNotifications());
+    });
   }
 
   Future<void> _toggleLikes(
@@ -280,6 +294,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     }, (_) {
       emit(state.copyWith(isLoading: false, isSuccess: true));
       add(GetAllNotifications());
+      _socketService?.sendNotification({"recipient": event.recipient});
     });
   }
 
@@ -287,6 +302,18 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
       GetAllNotifications event, Emitter<InteractionsState> emit) async {
     emit(state.copyWith(isLoading: true, isSuccess: false));
     final results = await _getAllNotificationUsecase.call();
+    results.fold((failure) {
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (notification) {
+      emit(state.copyWith(
+          isLoading: false, isSuccess: true, notifications: notification));
+    });
+  }
+
+  Future<void> _updateAllNotifications(
+      UpdateNotifications event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+    final results = await _updateNotificationsUsecase.call();
     results.fold((failure) {
       emit(state.copyWith(isLoading: false, isSuccess: false));
     }, (notification) {

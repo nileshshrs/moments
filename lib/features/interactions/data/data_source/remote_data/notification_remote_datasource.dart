@@ -57,4 +57,23 @@ class NotificationRemoteDatasource implements INotificationDatasource {
       throw Exception("Unexpected error: $e");
     }
   }
+  
+  @override
+  Future<void> updateNotifications()async {
+     try {
+      Response res = await _dio.get(
+        ApiEndpoints.updateNotification, // Corrected URL formatting
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+       return;
+      } else {
+        throw Exception("Failed to fetch notifications: ${res.statusMessage}");
+      }
+    } on DioException catch (e) {
+      throw Exception("DioException: ${e.response?.data ?? e.message}");
+    } catch (e) {
+      throw Exception("Unexpected error: $e");
+    }
+  }
 }
