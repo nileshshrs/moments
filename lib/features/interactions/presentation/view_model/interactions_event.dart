@@ -4,20 +4,22 @@ sealed class InteractionsEvent extends Equatable {
   const InteractionsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class ToggleLikes extends InteractionsEvent {
   final String userID;
   final String postID;
+  final String postOwner;
 
   const ToggleLikes({
     required this.userID,
     required this.postID,
+    required this.postOwner,
   });
 
   @override
-  List<Object> get props => [userID, postID];
+  List<Object> get props => [userID, postID, postOwner];
 }
 
 class GetPostLikes extends InteractionsEvent {
@@ -98,3 +100,17 @@ class UnfollowUser extends InteractionsEvent {
   @override
   List<Object> get props => [followerID, followingID];
 }
+
+class CreateNotification extends InteractionsEvent {
+  final String recipient;
+  final String type;
+  final String? post;
+
+  const CreateNotification(
+      {required this.recipient, required this.type, this.post});
+
+  @override
+  List<Object?> get props => [recipient, type, post];
+}
+
+class GetAllNotifications extends InteractionsEvent {}

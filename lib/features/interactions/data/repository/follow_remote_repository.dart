@@ -36,10 +36,11 @@ class FollowRemoteRepository implements IFollowRepository {
       return Left(ApiFailure(message: e.toString()));
     }
   }
-  
+
   @override
-  Future<Either<Failure, void>> unfollowUser(String followerID, String followingID)async {
- try {
+  Future<Either<Failure, void>> unfollowUser(
+      String followerID, String followingID) async {
+    try {
       await _followRemoteDatasource.unfollowUser(followerID, followingID);
       return Right(null);
     } catch (e) {

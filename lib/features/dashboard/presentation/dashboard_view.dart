@@ -6,6 +6,7 @@ import 'package:moments/features/conversation/presentation/view/create_conversat
 import 'package:moments/features/conversation/presentation/view_model/conversation_bloc.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_cubit.dart';
 import 'package:moments/features/dashboard/presentation/view_model/dashboard_state.dart';
+import 'package:moments/features/interactions/presentation/view/notifications/notification_view.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
@@ -19,10 +20,8 @@ class DashboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // BlocProvider(create: (_) => DashboardCubit()),
-        BlocProvider.value(
-            value: getIt<DashboardCubit>()), // Use existing instance
-        BlocProvider.value(value: getIt<PostBloc>()), // Use existing instance
+        BlocProvider.value(value: getIt<DashboardCubit>()),
+        BlocProvider.value(value: getIt<PostBloc>()),
         BlocProvider.value(value: getIt<SearchBloc>()),
         BlocProvider.value(value: getIt<ProfileBloc>()),
         BlocProvider.value(value: getIt<ConversationBloc>()),
@@ -41,18 +40,33 @@ class DashboardView extends StatelessWidget {
                             IconButton(
                               splashColor: Colors.transparent,
                               highlightColor: Colors.transparent,
-                              splashRadius: null,
+                              icon: const Icon(Icons.notifications_none,
+                                  color: Colors.black),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext
+                                      followerBottomSheetContext) {
+                                    return BlocProvider.value(
+                                        value: context.read<InteractionsBloc>(),
+                                        child: NotificationScreen());
+                                  },
+                                );
+                              },
+                            ),
+                            IconButton(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
                               icon: const Icon(Icons.add_circle,
                                   color: Colors.black),
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
-                                  // useSafeArea: true,
                                   isScrollControlled: true,
                                   builder: (BuildContext bottomSheetContext) {
                                     return BlocProvider.value(
-                                      value: context.read<
-                                          PostBloc>(), // Pass down the existing PostBloc
+                                      value: context.read<PostBloc>(),
                                       child: CreatePostBottomSheet(),
                                     );
                                   },
@@ -68,13 +82,12 @@ class DashboardView extends StatelessWidget {
                                   onPressed: () {
                                     showModalBottomSheet(
                                       context: context,
-                                      // useSafeArea: true,
                                       isScrollControlled: true,
                                       builder: (BuildContext
                                           conversationBottomSheetContext) {
                                         return BlocProvider.value(
-                                          value: context.read<
-                                              ConversationBloc>(), // Pass down the existing PostBloc
+                                          value:
+                                              context.read<ConversationBloc>(),
                                           child: CreateConversation(),
                                         );
                                       },
@@ -97,11 +110,12 @@ class DashboardView extends StatelessWidget {
                         : BlocBuilder<ProfileBloc, ProfileState>(
                             builder: (context, state) {
                               return Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0),
                                 child: Text(
                                   Formatter.capitalize(state.user?.username ??
                                       'Example Username'),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600),
                                 ),

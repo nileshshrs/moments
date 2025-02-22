@@ -247,7 +247,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           context.read<InteractionsBloc>().add(
                                                 ToggleLikes(
                                                     userID: userId!,
-                                                    postID: post.id),
+                                                    postID: post.id,
+                                                    postOwner: post.user.id),
                                               );
                                         },
                                         icon: Icon(

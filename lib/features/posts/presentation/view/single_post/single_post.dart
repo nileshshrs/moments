@@ -152,7 +152,7 @@ class SinglePostScreen extends StatelessWidget {
                           onPressed: () {
                             if (userId != null) {
                               context.read<InteractionsBloc>().add(
-                                    ToggleLikes(userID: userId, postID: postId),
+                                    ToggleLikes(userID: userId, postID: postId, postOwner: post.user.id),
                                   );
                             }
                           },

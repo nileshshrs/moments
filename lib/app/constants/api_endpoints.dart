@@ -60,5 +60,9 @@ class ApiEndpoints {
   static const String getUserFollowings = "follow/get/following";
   static const String createFollow = "follow";
   static const String unfollow = "follow/unfollow";
+
+  //notification
+  static const String createNotification = "notification/create";
+  static const String getNotification = "notification/all";
   //add more later
 }

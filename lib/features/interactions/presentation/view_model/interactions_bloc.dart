@@ -4,6 +4,7 @@ import 'package:moments/app/di/di.dart';
 import 'package:moments/features/interactions/data/dto/comment_dto.dart';
 import 'package:moments/features/interactions/data/dto/follow_dto.dart';
 import 'package:moments/features/interactions/data/dto/like_dto.dart';
+import 'package:moments/features/interactions/data/dto/notification_dto.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/create_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/delete_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/get_comments_usecase.dart';
@@ -13,6 +14,8 @@ import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/unfollow_user_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/notification_usecase/create_notification_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/notification_usecase/get_all_notification_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'interactions_event.dart';
@@ -28,6 +31,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
   final GetFollowingsUsecase _getFollowingsUsecase;
   final CreateFollowUsecase _createFollowUsecase;
   final UnfollowUserUsecase _unfollowUserUsecase;
+  final CreateNotificationUsecase _createNotificationUsecase;
+  final GetAllNotificationUsecase _getAllNotificationUsecase;
 
   InteractionsBloc({
     required ToggleLikeUsecase toggleLikeUsecase,
@@ -39,6 +44,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     required GetFollowingsUsecase getFollowingsUsecase,
     required CreateFollowUsecase createFollowUsecase,
     required UnfollowUserUsecase unfollowUserUsecase,
+    required CreateNotificationUsecase createNotificationUsecase,
+    required GetAllNotificationUsecase getAllNotificationUsecase,
   })  : _toggleLikeUsecase = toggleLikeUsecase,
         _getLikesUsecase = getLikesUsecase,
         _createCommentUsecase = createCommentUsecase,
@@ -48,6 +55,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
         _getFollowingsUsecase = getFollowingsUsecase,
         _createFollowUsecase = createFollowUsecase,
         _unfollowUserUsecase = unfollowUserUsecase,
+        _createNotificationUsecase = createNotificationUsecase,
+        _getAllNotificationUsecase = getAllNotificationUsecase,
         super(InteractionsState.initial()) {
     on<ToggleLikes>(_toggleLikes);
     on<GetPostLikes>(_getPostLikes);
@@ -59,6 +68,9 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     on<FetchFollowings>(_fetchFollowings);
     on<CreateFollow>(_createFollow);
     on<UnfollowUser>(_unfollowUser);
+    on<CreateNotification>(_createNotification);
+    on<GetAllNotifications>(_getAllNotifications);
+
   }
 
   Future<void> _toggleLikes(
@@ -71,9 +83,15 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     results.fold((failure) {
       print(failure);
       emit(state.copyWith(isLoading: false, isSuccess: false));
-    }, (_) {
+    }, (like) {
+      print("liked: $like");
       add(GetPostLikes(postID: event.postID));
       emit(state.copyWith(isLoading: false, isSuccess: true));
+      if (event.userID != event.postOwner &&
+          !state.likes[event.postID]!.userLiked) {
+        add(CreateNotification(
+            recipient: event.postOwner, type: "like", post: event.postID));
+      }
     });
   }
 
@@ -114,6 +132,10 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
           comments: [...state.comments!, comment]));
     });
     add(FetchComments(postId: event.postId));
+    add(CreateNotification(
+        recipient: state.comment!.user.userId,
+        type: "comment",
+        post: event.postId));
   }
 
   Future<void> _fetchComments(
@@ -221,6 +243,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
       add(FetchFollowers(id: event.id));
       add(FetchFollowings(id: event.id));
       add(FetchFollowings(id: event.userId));
+      add(CreateNotification(recipient: event.id, type: "follow"));
     });
   }
 
@@ -241,6 +264,34 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
       add(FetchFollowers(id: event.followingID));
       add(FetchFollowings(id: event.followerID));
       add(FetchFollowings(id: event.followingID));
+    });
+  }
+
+  Future<void> _createNotification(
+      CreateNotification event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+
+    final params = CreateNotificationParams(
+        recipient: event.recipient, type: event.type, post: event.post);
+
+    final results = await _createNotificationUsecase.call(params);
+    results.fold((failure) {
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (_) {
+      emit(state.copyWith(isLoading: false, isSuccess: true));
+      add(GetAllNotifications());
+    });
+  }
+
+  Future<void> _getAllNotifications(
+      GetAllNotifications event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+    final results = await _getAllNotificationUsecase.call();
+    results.fold((failure) {
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (notification) {
+      emit(state.copyWith(
+          isLoading: false, isSuccess: true, notifications: notification));
     });
   }
 }

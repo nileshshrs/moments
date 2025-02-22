@@ -28,9 +28,11 @@ import 'package:moments/features/dashboard/presentation/view_model/dashboard_cub
 import 'package:moments/features/interactions/data/data_source/remote_data/comment_remote_datasource.dart';
 import 'package:moments/features/interactions/data/data_source/remote_data/follow_remote_datasource.dart';
 import 'package:moments/features/interactions/data/data_source/remote_data/like_remote_datasource.dart';
+import 'package:moments/features/interactions/data/data_source/remote_data/notification_remote_datasource.dart';
 import 'package:moments/features/interactions/data/repository/comment_remote_repository.dart';
 import 'package:moments/features/interactions/data/repository/follow_remote_repository.dart';
 import 'package:moments/features/interactions/data/repository/like_remote_repository.dart';
+import 'package:moments/features/interactions/data/repository/notification_remote_repository.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/create_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/delete_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/get_comments_usecase.dart';
@@ -40,6 +42,8 @@ import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/unfollow_user_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/notification_usecase/create_notification_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/notification_usecase/get_all_notification_usecase.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/data/data_source/remote_datasource/post_remote_datasource.dart';
 import 'package:moments/features/posts/data/repository/post_remote_repository/post_remote_repository.dart';
@@ -436,6 +440,27 @@ Future<void> _initInteractionsDependencies() async {
     ),
   );
 
+  if (!getIt.isRegistered<NotificationRemoteDatasource>()) {
+    getIt.registerLazySingleton<NotificationRemoteDatasource>(
+      () => NotificationRemoteDatasource(getIt<Dio>()),
+    );
+  }
+
+  getIt.registerLazySingleton<NotificationRemoteRepository>(
+    () => NotificationRemoteRepository(getIt<NotificationRemoteDatasource>()),
+  );
+
+  getIt.registerLazySingleton<CreateNotificationUsecase>(
+    () => CreateNotificationUsecase(
+      getIt<NotificationRemoteRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetAllNotificationUsecase>(
+    () => GetAllNotificationUsecase(
+      getIt<NotificationRemoteRepository>(),
+    ),
+  );
+
   getIt.registerFactory(
     () => InteractionsBloc(
       toggleLikeUsecase: getIt<ToggleLikeUsecase>(),
@@ -447,6 +472,8 @@ Future<void> _initInteractionsDependencies() async {
       getFollowingsUsecase: getIt<GetFollowingsUsecase>(),
       createFollowUsecase: getIt<CreateFollowUsecase>(),
       unfollowUserUsecase: getIt<UnfollowUserUsecase>(),
+      createNotificationUsecase: getIt<CreateNotificationUsecase>(),
+      getAllNotificationUsecase: getIt<GetAllNotificationUsecase>(),
     ),
   );
 }
