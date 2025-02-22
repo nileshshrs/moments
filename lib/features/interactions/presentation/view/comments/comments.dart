@@ -46,14 +46,13 @@ class CommentScreen extends StatelessWidget {
                       size: 20,
                     ),
                   ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        "Comments",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.normal,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 110),
+                    child: Text(
+                      "Comments",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

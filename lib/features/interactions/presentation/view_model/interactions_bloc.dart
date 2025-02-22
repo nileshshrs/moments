@@ -130,7 +130,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _createComment(
       CreateComments event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isSuccess: false));
+    emit(state.copyWith(isLoading:false, isSuccess: false));
 
     final params =
         CreateCommentParams(postID: event.postId, comment: event.comment);
@@ -155,7 +155,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _fetchComments(
       FetchComments event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isSuccess: false));
+    emit(state.copyWith(isLoading: false, isSuccess: false));
 
     final params = GetCommentsParams(id: event.postId);
     final results = await _getCommentsUsecase.call(params);
@@ -244,7 +244,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _createFollow(
       CreateFollow event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isLoading: false, isSuccess: false));
 
     final params = CreateFollowParams(id: event.id);
     final results = await _createFollowUsecase.call(params);
@@ -264,7 +264,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _unfollowUser(
       UnfollowUser event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isLoading: false, isSuccess: false));
 
     final params = UnfollowUserParams(
         followerID: event.followerID, followingID: event.followingID);
@@ -284,7 +284,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _createNotification(
       CreateNotification event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isLoading: false, isSuccess: false));
 
     final params = CreateNotificationParams(
         recipient: event.recipient, type: event.type, post: event.post);
@@ -301,7 +301,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _getAllNotifications(
       GetAllNotifications event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isLoading: false, isSuccess: false));
     final results = await _getAllNotificationUsecase.call();
     results.fold((failure) {
       emit(state.copyWith(isLoading: false, isSuccess: false));
@@ -313,7 +313,7 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
 
   Future<void> _updateAllNotifications(
       UpdateNotifications event, Emitter<InteractionsState> emit) async {
-    emit(state.copyWith(isLoading: true, isSuccess: false));
+    emit(state.copyWith(isLoading: false, isSuccess: false));
     final results = await _updateNotificationsUsecase.call();
     results.fold((failure) {
       emit(state.copyWith(isLoading: false, isSuccess: false));

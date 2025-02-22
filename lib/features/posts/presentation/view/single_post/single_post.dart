@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:moments/app/di/di.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/interactions/presentation/view/comments/comments.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,11 +23,15 @@ class SinglePostScreen extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PostBloc>().add(LoadPostByID(id: postId));
       context.read<InteractionsBloc>().add(GetPostLikes(postID: postId));
+      context.read<InteractionsBloc>().add(FetchComments(postId: postId));
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Post"),
+        title: const Text(
+          "Post",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
@@ -52,17 +57,9 @@ class SinglePostScreen extends StatelessWidget {
                 // ✅ Post Header (User Info)
                 Row(
                   children: [
-                    Container(
-                      width: 45,
-                      height: 45,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF63C57A), width: 2),
-                      ),
-                      child: CircleAvatar(
-                        radius: 10,
-                        backgroundImage: NetworkImage(post.user.image[0]),
-                      ),
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundImage: NetworkImage(post.user.image[0]),
                     ),
                     const SizedBox(width: 8),
                     Column(
@@ -138,13 +135,16 @@ class SinglePostScreen extends StatelessWidget {
 
                 // ✅ Like & Comment Buttons with InteractionBloc
                 BlocBuilder<InteractionsBloc, InteractionsState>(
-                  builder: (context, likeState) {
-                    if (likeState.isLoading) {
-                      return const SizedBox.shrink(); // Hides UI until likes are loaded
-                    }
-
-                    final likeCount = likeState.likes[postId]?.likeCount ?? 0;
-                    final userLiked = likeState.likes[postId]?.userLiked ?? false;
+                  buildWhen: (previous, current) =>
+                      previous.likes != current.likes ||
+                      previous.commentsCount != current.commentsCount ||
+                      previous.isLoading != current.isLoading,
+                  builder: (context, interactionState) {
+                    final likeData = interactionState.likes[postId];
+                    final likeCount = likeData?.likeCount ?? 0;
+                    final userLiked = likeData?.userLiked ?? false;
+                    final commentCount =
+                        interactionState.commentsCount[postId] ?? 0;
 
                     return Row(
                       children: [
@@ -152,7 +152,10 @@ class SinglePostScreen extends StatelessWidget {
                           onPressed: () {
                             if (userId != null) {
                               context.read<InteractionsBloc>().add(
-                                    ToggleLikes(userID: userId, postID: postId, postOwner: post.user.id),
+                                    ToggleLikes(
+                                        userID: userId,
+                                        postID: postId,
+                                        postOwner: post.user.id),
                                   );
                             }
                           },
@@ -163,21 +166,35 @@ class SinglePostScreen extends StatelessWidget {
                         ),
                         Text(
                           likeCount.toString(),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 16),
                         IconButton(
                           onPressed: () {
-                            print("Commented");
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder:
+                                  (BuildContext commentBottomSheetContext) {
+                                return BlocProvider.value(
+                                  value: context.read<InteractionsBloc>(),
+                                  child: CommentScreen(
+                                    postId: post.id,
+                                  ),
+                                );
+                              },
+                            );
                           },
                           icon: const Icon(
                             CupertinoIcons.conversation_bubble,
                             color: Colors.black,
                           ),
                         ),
-                        const Text(
-                          '45',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        Text(
+                          "$commentCount",
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w500),
                         ),
                       ],
                     );
