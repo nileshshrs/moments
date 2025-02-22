@@ -11,6 +11,7 @@ class FollowDTO extends Equatable {
   final UserDTO following;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final bool? match;
 
   const FollowDTO({
     this.followId,
@@ -18,6 +19,7 @@ class FollowDTO extends Equatable {
     required this.following,
     this.createdAt,
     this.updatedAt,
+    this.match
   });
 
   factory FollowDTO.fromJson(Map<String, dynamic> json) => _$FollowDTOFromJson(json);

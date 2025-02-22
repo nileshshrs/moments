@@ -69,6 +69,9 @@ class FollowingBottomSheet extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(
+              height: 20,
+            ),
             // Following List
             Expanded(
               child: ValueListenableBuilder<TextEditingValue>(

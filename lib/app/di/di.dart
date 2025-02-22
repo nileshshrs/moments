@@ -34,8 +34,10 @@ import 'package:moments/features/interactions/data/repository/like_remote_reposi
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/create_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/delete_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/get_comments_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/create_follow_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followers_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followings_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/unfollow_user_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
@@ -423,6 +425,16 @@ Future<void> _initInteractionsDependencies() async {
       getIt<FollowRemoteRepository>(),
     ),
   );
+  getIt.registerLazySingleton<CreateFollowUsecase>(
+    () => CreateFollowUsecase(
+      getIt<FollowRemoteRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton<UnfollowUserUsecase>(
+    () => UnfollowUserUsecase(
+      getIt<FollowRemoteRepository>(),
+    ),
+  );
 
   getIt.registerFactory(
     () => InteractionsBloc(
@@ -433,6 +445,8 @@ Future<void> _initInteractionsDependencies() async {
       deleteCommentUsecase: getIt<DeleteCommentUsecase>(),
       getFollowersUsecase: getIt<GetFollowersUsecase>(),
       getFollowingsUsecase: getIt<GetFollowingsUsecase>(),
+      createFollowUsecase: getIt<CreateFollowUsecase>(),
+      unfollowUserUsecase: getIt<UnfollowUserUsecase>(),
     ),
   );
 }

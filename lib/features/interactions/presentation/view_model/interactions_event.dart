@@ -72,6 +72,7 @@ class FetchFollowers extends InteractionsEvent {
   @override
   List<Object> get props => [id];
 }
+
 class FetchFollowings extends InteractionsEvent {
   final String id;
   const FetchFollowings({required this.id});
@@ -80,4 +81,20 @@ class FetchFollowings extends InteractionsEvent {
   List<Object> get props => [id];
 }
 
+class CreateFollow extends InteractionsEvent {
+  final String id;
+  final String userId;
+  const CreateFollow({required this.id, required this.userId});
+  @override
+  List<Object> get props => [id, userId];
+}
 
+class UnfollowUser extends InteractionsEvent {
+  final String followerID;
+  final String followingID;
+
+  const UnfollowUser({required this.followerID, required this.followingID});
+
+  @override
+  List<Object> get props => [followerID, followingID];
+}

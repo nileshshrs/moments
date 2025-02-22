@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/app/di/di.dart';
 import 'package:moments/core/utils/formatter.dart';
+import 'package:moments/features/interactions/presentation/view/follower/follower_view.dart';
+import 'package:moments/features/interactions/presentation/view/follower/following_view.dart';
 import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/posts/presentation/view/single_post/single_post.dart';
-import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/profile/view_model/profile_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,14 +16,14 @@ class UserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profileBloc = getIt<ProfileBloc>();
-    final interactionsBloc = getIt<InteractionsBloc>();
+    final profileBloc = context.read<ProfileBloc>();
+    final interactionsBloc = context.read<InteractionsBloc>();
     final sharedPrefs = getIt<SharedPreferences>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       profileBloc.add(LoadProfileByID(id: userId));
-      interactionsBloc.add(FetchFollowers(id: userId));
-      interactionsBloc.add(FetchFollowings(id: userId));
+      interactionsBloc.add(FetchFollowers(id: userId)); //  Fetch followers
+      interactionsBloc.add(FetchFollowings(id: userId)); //  Fetch followings
     });
 
     final String? currentUserID = sharedPrefs.getString('userID');
@@ -93,9 +94,9 @@ class UserScreen extends StatelessWidget {
                                 bloc: interactionsBloc,
                                 builder: (context, interactionState) {
                                   final followerCount =
-                                      interactionState.followers!.length;
+                                      interactionState.followers?.length ?? 0;
                                   final followingCount =
-                                      interactionState.followings!.length;
+                                      interactionState.followings?.length ?? 0;
                                   return Row(
                                     children: [
                                       Column(
@@ -114,11 +115,28 @@ class UserScreen extends StatelessWidget {
                                       const SizedBox(width: 51),
                                       Column(
                                         children: [
-                                          Text(
-                                            followerCount.toString(),
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                          GestureDetector(
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                builder: (BuildContext
+                                                    followerBottomSheetContext) {
+                                                  return BlocProvider.value(
+                                                      value: getIt<
+                                                          InteractionsBloc>(),
+                                                      child: FollowerBottomSheet(
+                                                          followers:
+                                                              interactionState
+                                                                  .followers!));
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              '$followerCount',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                           ),
                                           const Text('Followers',
@@ -128,11 +146,28 @@ class UserScreen extends StatelessWidget {
                                       const SizedBox(width: 51),
                                       Column(
                                         children: [
-                                          Text(
-                                            followingCount.toString(),
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                          GestureDetector(
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                builder: (BuildContext
+                                                    followingBottomSheetContext) {
+                                                  return BlocProvider.value(
+                                                      value: getIt<
+                                                          InteractionsBloc>(),
+                                                      child: FollowingBottomSheet(
+                                                          following:
+                                                              interactionState
+                                                                  .followings!));
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              '$followingCount',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                           ),
                                           const Text('Following',
@@ -151,57 +186,75 @@ class UserScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  if (isCurrentUser)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SizedBox(
-                        height: 38,
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[200],
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: const Text(
-                            "Edit profile",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600),
-                          ),
+
+                  //  Follow/Unfollow Button Logic
+                  BlocBuilder<InteractionsBloc, InteractionsState>(
+                    bloc: interactionsBloc,
+                    builder: (context, state) {
+                      final bool isFollowing = state.followers?.any(
+                              (follower) =>
+                                  follower.follower.id == currentUserID) ??
+                          false;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: SizedBox(
+                          height: 38,
+                          width: double.infinity,
+                          child: isCurrentUser
+                              ? ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[200],
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Edit profile",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: isFollowing
+                                        ? Colors.grey
+                                        : const Color(0xFF63C57A),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    if (isFollowing) {
+                                      context.read<InteractionsBloc>().add(
+                                          UnfollowUser(
+                                              followerID: currentUserID!,
+                                              followingID: userId));
+                                    } else {
+                                      context.read<InteractionsBloc>().add(
+                                          CreateFollow(
+                                              id: userId,
+                                              userId: currentUserID!));
+                                    }
+                                  },
+                                  child: Text(
+                                    isFollowing ? "Unfollow" : "Follow",
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
                         ),
-                      ),
-                    )
-                  else
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SizedBox(
-                        height: 38,
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          onPressed: () {
-                            // TODO: Implement follow logic
-                          },
-                          child: const Text(
-                            "Follow",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    },
+                  ),
+
                   const SizedBox(height: 10),
+
                   Container(
                     decoration: BoxDecoration(
                       border: Border(
@@ -241,7 +294,8 @@ class UserScreen extends StatelessWidget {
                             ),
                           ),
                         )
-                      : GridView.builder(
+                      : //  Post Grid
+                      GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate:
@@ -259,28 +313,17 @@ class UserScreen extends StatelessWidget {
                                 if (post.id != null) {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (_) => MultiBlocProvider(
-                                        providers: [
-                                          BlocProvider.value(
-                                              value: getIt<PostBloc>()),
-                                          BlocProvider.value(
-                                              value: getIt<InteractionsBloc>()),
-                                        ],
-                                        child:
-                                            SinglePostScreen(postId: post.id!),
-                                      ),
+                                      builder: (_) =>
+                                          SinglePostScreen(postId: post.id!),
                                     ),
                                   );
                                 }
                               },
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(0),
-                                child: Image.network(
-                                  post.image.isNotEmpty
-                                      ? post.image[0]
-                                      : 'https://via.placeholder.com/150',
-                                  fit: BoxFit.cover,
-                                ),
+                              child: Image.network(
+                                post.image.isNotEmpty
+                                    ? post.image[0]
+                                    : 'https://via.placeholder.com/150',
+                                fit: BoxFit.cover,
                               ),
                             );
                           },

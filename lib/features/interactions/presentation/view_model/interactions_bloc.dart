@@ -1,15 +1,19 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:moments/app/di/di.dart';
 import 'package:moments/features/interactions/data/dto/comment_dto.dart';
 import 'package:moments/features/interactions/data/dto/follow_dto.dart';
 import 'package:moments/features/interactions/data/dto/like_dto.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/create_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/delete_comment_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/comment_usecase/get_comments_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/create_follow_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followers_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/follow_usecase/get_followings_usecase.dart';
+import 'package:moments/features/interactions/domain/usecase/follow_usecase/unfollow_user_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/get_likes_usecase.dart';
 import 'package:moments/features/interactions/domain/usecase/like_usecase/toggle_like_usecase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'interactions_event.dart';
 part 'interactions_state.dart';
@@ -22,6 +26,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
   final DeleteCommentUsecase _deleteCommentUsecase;
   final GetFollowersUsecase _getFollowersUsecase;
   final GetFollowingsUsecase _getFollowingsUsecase;
+  final CreateFollowUsecase _createFollowUsecase;
+  final UnfollowUserUsecase _unfollowUserUsecase;
 
   InteractionsBloc({
     required ToggleLikeUsecase toggleLikeUsecase,
@@ -31,6 +37,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     required DeleteCommentUsecase deleteCommentUsecase,
     required GetFollowersUsecase getFollowersUsecase,
     required GetFollowingsUsecase getFollowingsUsecase,
+    required CreateFollowUsecase createFollowUsecase,
+    required UnfollowUserUsecase unfollowUserUsecase,
   })  : _toggleLikeUsecase = toggleLikeUsecase,
         _getLikesUsecase = getLikesUsecase,
         _createCommentUsecase = createCommentUsecase,
@@ -38,6 +46,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
         _deleteCommentUsecase = deleteCommentUsecase,
         _getFollowersUsecase = getFollowersUsecase,
         _getFollowingsUsecase = getFollowingsUsecase,
+        _createFollowUsecase = createFollowUsecase,
+        _unfollowUserUsecase = unfollowUserUsecase,
         super(InteractionsState.initial()) {
     on<ToggleLikes>(_toggleLikes);
     on<GetPostLikes>(_getPostLikes);
@@ -47,6 +57,8 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     on<DeleteComment>(_deleteComment);
     on<FetchFollowers>(_fetchFollowers);
     on<FetchFollowings>(_fetchFollowings);
+    on<CreateFollow>(_createFollow);
+    on<UnfollowUser>(_unfollowUser);
   }
 
   Future<void> _toggleLikes(
@@ -190,6 +202,45 @@ class InteractionsBloc extends Bloc<InteractionsEvent, InteractionsState> {
     }, (followings) {
       emit(state.copyWith(
           isLoading: false, isSuccess: true, followings: followings));
+    });
+  }
+
+  Future<void> _createFollow(
+      CreateFollow event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+
+    final params = CreateFollowParams(id: event.id);
+    final results = await _createFollowUsecase.call(params);
+
+    results.fold((failure) {
+      print('failure: $failure');
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (_) {
+      emit(state.copyWith(isLoading: false, isSuccess: true));
+      add(FetchFollowers(id: event.userId));
+      add(FetchFollowers(id: event.id));
+      add(FetchFollowings(id: event.id));
+      add(FetchFollowings(id: event.userId));
+    });
+  }
+
+  Future<void> _unfollowUser(
+      UnfollowUser event, Emitter<InteractionsState> emit) async {
+    emit(state.copyWith(isLoading: true, isSuccess: false));
+
+    final params = UnfollowUserParams(
+        followerID: event.followerID, followingID: event.followingID);
+
+    final results = await _unfollowUserUsecase.call(params);
+    results.fold((failure) {
+      print('failure: $failure');
+      emit(state.copyWith(isLoading: false, isSuccess: false));
+    }, (_) {
+      emit(state.copyWith(isLoading: false, isSuccess: true));
+      add(FetchFollowers(id: event.followerID));
+      add(FetchFollowers(id: event.followingID));
+      add(FetchFollowings(id: event.followerID));
+      add(FetchFollowings(id: event.followingID));
     });
   }
 }

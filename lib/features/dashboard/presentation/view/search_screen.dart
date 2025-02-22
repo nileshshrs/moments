@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moments/features/auth/domain/entity/user_entity.dart';
+import 'package:moments/features/interactions/presentation/view_model/interactions_bloc.dart';
 import 'package:moments/features/profile/view/user_screen.dart';
+import 'package:moments/features/profile/view_model/profile_bloc.dart';
 import 'package:moments/features/search/view_model/search_bloc.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -114,7 +116,15 @@ class _SearchScreenState extends State<SearchScreen> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => UserScreen(userId: user.userId!),
+                            builder: (_) => MultiBlocProvider(
+                              providers: [
+                                BlocProvider.value(
+                                    value: context.read<InteractionsBloc>()),
+                                BlocProvider.value(
+                                    value: context.read<ProfileBloc>()),
+                              ],
+                              child: UserScreen(userId: user.userId!),
+                            ),
                           ),
                         );
                       },

@@ -16,6 +16,7 @@ FollowDTO _$FollowDTOFromJson(Map<String, dynamic> json) => FollowDTO(
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
+      match: json['match'] as bool?,
     );
 
 Map<String, dynamic> _$FollowDTOToJson(FollowDTO instance) => <String, dynamic>{
@@ -24,6 +25,7 @@ Map<String, dynamic> _$FollowDTOToJson(FollowDTO instance) => <String, dynamic>{
       'following': instance.following,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
+      'match': instance.match,
     };
 
 UserDTO _$UserDTOFromJson(Map<String, dynamic> json) => UserDTO(
