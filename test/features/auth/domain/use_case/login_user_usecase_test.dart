@@ -1,3 +1,4 @@
+// test/features/auth/domain/use_case/login_user_usecase_test.dart
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -6,74 +7,107 @@ import 'package:moments/core/error/failure.dart';
 import 'package:moments/features/auth/domain/repository/user_repository.dart';
 import 'package:moments/features/auth/domain/use_case/login_user_usecase.dart';
 
-// Mock classes
+/// Mock classes for dependencies.
 class MockUserRepository extends Mock implements IUserRepository {}
+class MockSharedPrefs extends Mock implements SharedPrefs {}
 
-class MockTokenSharedPrefs extends Mock implements SharedPrefs {}
+/// Dummy user class with a userId getter.
+class DummyUser {
+  final String userId;
+  DummyUser({required this.userId});
+}
+
+/// Dummy login response class, where the user field is a DummyUser.
+class DummyLoginResponse {
+  final String accessToken;
+  final String refreshToken;
+  final DummyUser user;
+  DummyLoginResponse({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.user,
+  });
+}
 
 void main() {
-  late MockUserRepository repository;
-  late MockTokenSharedPrefs tokenSharedPrefs;
+  late MockUserRepository mockRepository;
+  late MockSharedPrefs mockSharedPrefs;
   late LoginUserUsecase usecase;
 
-  setUp(() {
-    repository = MockUserRepository();
-    tokenSharedPrefs = MockTokenSharedPrefs();
-    usecase = LoginUserUsecase(
-      sharedPrefs: tokenSharedPrefs,
-      userRepository: repository,
-    );
-
-    // Register fallback values if needed
-    registerFallbackValue(LoginParams(username: '', password: ''));
+  // Register fallback for LoginParams (if needed by mocktail).
+  setUpAll(() {
+    registerFallbackValue(const LoginParams(username: '', password: ''));
   });
 
-  test(
-      'should call the [AuthRepo.loginStudent] with correct username and password and save the access and refresh tokens',
-      () async {
-    // Mocking the login method
-    when(() => repository.login(any(), any())).thenAnswer(
-      (invocation) async {
-        final username = invocation.positionalArguments[0] as String;
-        final password = invocation.positionalArguments[1] as String;
-        if (username == 'kiran' && password == 'kiran123') {
-          return const Right((
-              accessToken: 'mockAccessToken', refreshToken: 'mockRefreshToken'));
-        } else {
-          return Left(ApiFailure(message: "login failed", statusCode:400 ));
-        }
-      },
+  setUp(() {
+    mockRepository = MockUserRepository();
+    mockSharedPrefs = MockSharedPrefs();
+    usecase = LoginUserUsecase(
+      userRepository: mockRepository,
+      sharedPrefs: mockSharedPrefs,
     );
+  });
 
-    // Mocking the shared prefs methods
-    when(() => tokenSharedPrefs.saveAccessToken(any()))
-        .thenAnswer((_) async => const Right(null));
+  final tUsername = 'kiran';
+  final tPassword = 'kiran123';
+  final tParams = LoginParams(username: tUsername, password: tPassword);
 
-    when(() => tokenSharedPrefs.getAccessToken())
-        .thenAnswer((_) async => const Right('mockAccessToken'));
+  // Create a dummy login response where the user is a DummyUser.
+  final dummyLoginResponse = DummyLoginResponse(
+    accessToken: 'mockAccessToken',
+    refreshToken: 'mockRefreshToken',
+    user: DummyUser(userId: 'user123'),
+  );
 
-    when(() => tokenSharedPrefs.saveRefreshToken(any()))
-        .thenAnswer((_) async => const Right(null));
+  test(
+      'should call repository.login with correct username and password, '
+      'save tokens and userID in SharedPrefs, and return the login response',
+      () async {
+    // Arrange: Stub repository.login to return a successful response.
+    when(() => mockRepository.login(any(), any())).thenAnswer((invocation) async {
+      final username = invocation.positionalArguments[0] as String;
+      final password = invocation.positionalArguments[1] as String;
+      if (username == tUsername && password == tPassword) {
+        return Right(dummyLoginResponse);
+      } else {
+        return Left(ApiFailure(message: "login failed", statusCode: 400));
+      }
+    });
 
-    when(() => tokenSharedPrefs.getRefreshToken())
-        .thenAnswer((_) async => const Right('mockRefreshToken'));
+    // Stub SharedPrefs methods.
+    when(() => mockSharedPrefs.saveAccessToken(any()))
+        .thenAnswer((_) async => Right(null));
+    when(() => mockSharedPrefs.getAccessToken())
+        .thenAnswer((_) async => Right('mockAccessToken'));
+    when(() => mockSharedPrefs.saveRefreshToken(any()))
+        .thenAnswer((_) async => Right(null));
+    when(() => mockSharedPrefs.getRefreshToken())
+        .thenAnswer((_) async => Right('mockRefreshToken'));
+    when(() => mockSharedPrefs.setUserID(any()))
+        .thenAnswer((_) async => Right(null));
+    when(() => mockSharedPrefs.getUserID())
+        .thenAnswer((_) async => Right('user123'));
 
-    // Execute the use case
-    final result = await usecase(const LoginParams(username: 'kiran', password: 'kiran123'));
+    // Act: Execute the usecase.
+    final result = await usecase(tParams);
 
-    // Assertions
+    // Assert: Verify the response.
     result.fold(
       (failure) => fail('Expected Right but got Left: ${failure.message}'),
       (response) {
-        expect(response.accessToken, 'mockAccessToken');
-        expect(response.refreshToken, 'mockRefreshToken');
+        expect(response.accessToken, equals('mockAccessToken'));
+        expect(response.refreshToken, equals('mockRefreshToken'));
+        // Here, response.user is a DummyUser, so we check its userId.
+        expect(response.user.userId, equals('user123'));
       },
     );
 
-    // Verify that shared preferences methods were called
-    verify(() => tokenSharedPrefs.saveAccessToken('mockAccessToken')).called(1);
-    verify(() => tokenSharedPrefs.getAccessToken()).called(1);
-    verify(() => tokenSharedPrefs.saveRefreshToken('mockRefreshToken')).called(1);
-    verify(() => tokenSharedPrefs.getRefreshToken()).called(1);
+    // Verify that the shared preferences methods were called with expected arguments.
+    verify(() => mockSharedPrefs.saveAccessToken('mockAccessToken')).called(1);
+    verify(() => mockSharedPrefs.getAccessToken()).called(1);
+    verify(() => mockSharedPrefs.saveRefreshToken('mockRefreshToken')).called(1);
+    verify(() => mockSharedPrefs.getRefreshToken()).called(1);
+    verify(() => mockSharedPrefs.setUserID('user123')).called(1);
+    verify(() => mockSharedPrefs.getUserID()).called(1);
   });
 }
