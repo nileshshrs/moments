@@ -33,7 +33,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<LoadPosts>(_loadPosts);
     on<LoadPostByID>(_loadPostByID);
 
-    add(LoadPosts());
+    // add(LoadPosts());
   }
   void _createPosts(CreatePost event, Emitter<PostState> emit) async {
     emit(state.copyWith(isSuccess: false));
