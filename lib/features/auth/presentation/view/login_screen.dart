@@ -23,15 +23,16 @@ class LoginScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 90),
+                const SizedBox(height: 150),
                 SizedBox(
                   height: 140,
                   width: double.infinity,
                   child: Image.asset(
                     "assets/images/logo-light.png",
-                    fit: BoxFit.fill,
+                    fit: BoxFit.contain,
                   ),
                 ),
+                SizedBox(height: 10),
                 const SizedBox(
                   child: Text(
                     "Connect with the world around you.",
@@ -159,7 +160,6 @@ class LoginScreen extends StatelessWidget {
                     )
                   ],
                 ),
-
               ],
             ),
           ),

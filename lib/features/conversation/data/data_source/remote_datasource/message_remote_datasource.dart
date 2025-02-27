@@ -12,8 +12,7 @@ class MessageRemoteDatasource implements IMessageDataSource {
   Future<List<MessageDTO>> fetchMessages(String id) async {
     try {
       // Append `id` to the API endpoint for fetching messages
-      Response res = await _dio
-          .get("http://192.168.31.172:6278/api/v1/messages/conversation/$id");
+      Response res = await _dio.get("${ApiEndpoints.baseUrl}messages/conversation/$id");
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         // Convert response data into List<MessageDTO>

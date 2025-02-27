@@ -33,7 +33,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<LoadPosts>(_loadPosts);
     on<LoadPostByID>(_loadPostByID);
 
-    // add(LoadPosts());  // comment this when running the test
+    add(LoadPosts());  // comment this when running the test
   }
   void _createPosts(CreatePost event, Emitter<PostState> emit) async {
     emit(state.copyWith(isSuccess: false));
@@ -81,7 +81,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   Future<void> _loadPosts(LoadPosts event, Emitter<PostState> emit) async {
     // Set loading state and reset success/error
-    emit(state.copyWith(isSuccess: false));
+    emit(state.copyWith(isLoading:true, isSuccess: false)); //use this for showing accelormeter
+    // emit(state.copyWith( isSuccess: false));
 
     // Call use case to fetch posts
     final results = await _getPostsUsecase.call();

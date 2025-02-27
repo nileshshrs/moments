@@ -21,7 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// it prints the current DashboardState and a custom message.
 class GyroscopeListener extends StatefulWidget {
   final Widget child;
-  const GyroscopeListener({Key? key, required this.child}) : super(key: key);
+  const GyroscopeListener({super.key, required this.child});
 
   @override
   _GyroscopeListenerState createState() => _GyroscopeListenerState();
@@ -30,36 +30,44 @@ class GyroscopeListener extends StatefulWidget {
 class _GyroscopeListenerState extends State<GyroscopeListener> {
   StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;
   bool _subscriptionInitialized = false;
+  bool _canSwapTabs = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Initialize subscription only once when dependencies are available.
     if (!_subscriptionInitialized) {
       _subscriptionInitialized = true;
       _gyroscopeSubscription = gyroscopeEvents.listen((GyroscopeEvent event) {
-        // Only trigger on y-axis events
         final dashboardCubit = context.read<DashboardCubit>();
         final currentIndex = dashboardCubit.state.selectedIndex;
         final maxIndex = dashboardCubit.state.views.length - 1;
 
+        // Increase index if event.y > 1, currentIndex is less than max, and we're allowed to swap
         if (event.y > 1) {
-          // Increase index only if not at the maximum index.
-          if (currentIndex < maxIndex) {
+          if (currentIndex < maxIndex && _canSwapTabs) {
             final newIndex = currentIndex + 1;
             dashboardCubit.onTabTapped(newIndex);
             print("Incremented selected index: $newIndex");
+            _canSwapTabs = false;
+            Timer(const Duration(seconds: 2), () {
+              _canSwapTabs = true;
+            });
           } else {
-            print("Already at maximum index: $currentIndex. No increment.");
+            print("Already at maximum or waiting for cooldown.");
           }
-        } else if (event.y < -1) {
-          // Decrease index only if not at the minimum index.
-          if (currentIndex > 0) {
+        }
+        // Decrease index if event.y < -1, currentIndex is above 0, and we're allowed to swap
+        else if (event.y < -1) {
+          if (currentIndex > 0 && _canSwapTabs) {
             final newIndex = currentIndex - 1;
             dashboardCubit.onTabTapped(newIndex);
             print("Decremented selected index: $newIndex");
+            _canSwapTabs = false;
+            Timer(const Duration(seconds: 2), () {
+              _canSwapTabs = true;
+            });
           } else {
-            print("Already at minimum index: $currentIndex. No decrement.");
+            print("Already at minimum or waiting for cooldown.");
           }
         }
       });

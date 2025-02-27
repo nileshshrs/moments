@@ -28,6 +28,9 @@ ThemeData getApplicationTheme() {
           ),
         ),
       ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: Color(0xFF63C57A),
+      ),
 
       // TextFormField Global Theme
       inputDecorationTheme: InputDecorationTheme(

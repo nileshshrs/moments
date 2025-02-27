@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +12,7 @@ import 'package:moments/features/interactions/presentation/view_model/interactio
 import 'package:moments/features/posts/presentation/view/create_post/create_posts.dart';
 import 'package:moments/features/posts/presentation/view_model/post_bloc.dart';
 import 'package:moments/features/profile/view/user_screen.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,6 +24,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool hasFetchedPosts = false;
+  late final StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
+  final double shakeThreshold = 15;
+  bool _canTrigger = true; // Used to debounce shake events
 
   @override
   void initState() {
@@ -28,6 +35,21 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<PostBloc>().add(LoadPosts());
       hasFetchedPosts = true;
     }
+    _accelerometerSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
+      final double magnitude =
+          sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+      if (magnitude > shakeThreshold && _canTrigger) {
+        // Prevent further triggers for 2 seconds
+        _canTrigger = false;
+        context.read<PostBloc>().add(LoadPosts());
+        print(
+            "Accelerometer: Shake detected (magnitude: ${magnitude.toStringAsFixed(2)}), reloading posts");
+        Timer(const Duration(seconds: 2), () {
+          _canTrigger = true;
+        });
+      }
+    });
   }
 
   @override

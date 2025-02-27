@@ -46,7 +46,7 @@ class RegistrationScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 90),
+                const SizedBox(height: 110),
                 Image.asset(
                   "assets/images/logo-light.png",
                   height: 140,
